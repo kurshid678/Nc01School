@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Certificate Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 100px;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 200vh;
+        } 
+        .menu-button {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            z-index: 1001;
+            background: var(--primary);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .pdf-text-content {
+  word-break: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+        .menu-button:hover {
+            transform: scale(1.05);
+            background: var(--secondary);
+        }
+
+        .controls-panel {
+            position: fixed;
+            left: -340px;
+            top: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .controls-panel.visible {
+            left: 20px;
+        }
+
+        .close-button {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #64748b;
+        }
+
+        #preview {
+            position: relative;
+            margin: 80px auto 20px;
+            background-color: var(--surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            transform-style: preserve-3d;
+            contain: strict;
+        }
+
+        .a4 { width: 210mm; height: 297mm; }
+        .legal { width: 22cm; height: 36cm; }
+        .legal2 { width: 22cm; height: 36cm; }
+
+        .bg-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            z-index: 0;
+             pointer-events: none;
+        }
+     
+      
+        .certificate-input {
+            position: absolute;
+            border: none;
+            background: transparent;
+             color: #222; /* Slightly darker for headings */
+            font-family: 'Georgia', serif
+           
+            padding: 10px 20px 15px 5px;
+            outline: none;
+            text-align: center;
+            transform: translate(-50%, -50%);
+            min-width: 400px;
+        }
+
+     
+
+
+
+
+ @media print {
+    .autoTextarea {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+ }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        select, .download-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .download-btn {
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            background: var(--secondary);
+        }
+
+        .control-group {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .control-group h4 {
+            margin: 0 0 1rem 0;
+            color: #1e293b;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .control-group label {
+            display: block;
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .control-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s ease;
+            z-index: 9999;
+        }
+
+        .loading.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .controls-panel {
+                width: 90%;
+                left: -100%;
+            }
+            
+            .controls-panel.visible {
+                left: 10px;
+            }
+            
+            #preview {
+                zoom: 0.7;
+            }
+        }
+
+  #SchoolnameInput{
+    width: 320px;
+font-weight: bold;
+  
+}
+
+#StudentnameInput{
+ width: 320px;
+font-weight: bold;
+
+
+}
+
+
+
+  #Datebinword {
+    width: 350px; /* Fixed width */
+    min-height: 30px;
+    max-height: 500px;
+    font-size: 16px;
+    overflow: hidden;
+    resize: none; /* Prevent manual resizing */
+    padding: 5px;
+    border: 1px solid rgba(0,0,0,0.0);
+    text-align: center;
+    display: block;
+    box-sizing: border-box;
+    background: transparent;
+    font-weight: Bold;
+  }
+
+   
+  #ReligionInput{
+    width: 65px; /* Fixed width */
+    min-height: 50px;
+    max-height: 500px;
+    font-size: 16px;
+    overflow: hidden;
+    resize: none; /* Prevent manual resizing */
+    padding: 5px;
+    border: 1px solid rgba(0,0,0,0.0);
+    text-align: center;
+    display: block;
+    box-sizing: border-box;
+    background: transparent;
+     color: #222; /* Slightly darker for headings */
+    font-family: 'Georgia', serif
+
+}
+
+#classinwordInput{
+    width: 300px; /* Fixed width */
+    min-height: 50px;
+    max-height: 500px;
+    font-size: 16px;
+    overflow: hidden;
+    resize: none; /* Prevent manual resizing */
+    padding: 5px;
+    border: 1px solid rgba(0,0,0,0.0);
+    text-align: center;
+    display: block;
+    box-sizing: border-box;
+    background: transparent;
+    color: #222; /* Slightly darker for headings */
+    font-family: 'Georgia', serif
+
+}
+# aInput {
+      color: #222; /* Slightly darker for headings */
+      font-family: 'Georgia', serif
+      width: 500px !important;
+}
+
+
+
+.certificate-input, .autoTextarea {
+            transform: translate(-50%, -50%) scale(0.999);
+            backface-visibility: hidden;
+            will-change: transform;
+        }
+
+
+
+
+ h1 {
+            text-align: center;
+            color: #444;
+        }
+
+        /* Search Bar and Button */
+        #search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        #search-bar {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #search-btn3 {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #search-btn3:hover {
+            background-color: #0056b3;
+        }
+
+        /* Input Fields */
+        #input-fields {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #input-fields input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            flex: 1 1 200px;
+        }
+
+        /* Card View */
+        #results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            transition: transform 0.5s ease-in-out;
+            transform: translateX(0);
+        }
+
+        .results-slide-out {
+            transform: translateX(-100%);
+        }
+
+
+        .card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 250px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .card p {
+            margin: 0 0 10px;
+            font-size: 16px;
+        }
+
+        .card p strong {
+            color: #007bff;
+        }
+
+        /* No Results Message */
+        #no-results {
+            text-align: center;
+            color: #888;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        #clear-btn {
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Sliding Panel */
+        .sliding-panel {
+            position: fixed;
+            top: 0;
+            right: -400px; /* Start off-screen */
+            width: 400px;
+            height: 100%;
+            background-color: white;
+            box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease-in-out;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sliding-panel.open {
+            right: 0; /* Slide in */
+        }
+
+        .panel-toggle-btn {
+            position: relative;
+            top: 20px;
+            right: 100px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1002;
+        }
+
+        .panel-toggle-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .close-panel-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .close-panel-btn:hover {
+            color: #007bff;
+        }
+
+.navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .navbar h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .navbar button {
+            padding: 8px 16px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .navbar button:hover {
+            background-color: #004080;
+        }
+
+ .dialog-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.dialog-buttons {
+  margin-top: 15px;
+  text-align: right;
+}
+
+.dialog-buttons button {
+  margin-left: 10px;
+  padding: 6px 15px;
+}
+
+.primary {
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+    </style>
+</head>
+<body>
+<div class="navbar">
+        <h2>Google Sheet Data Display</h2>
+        <button onclick="togglePanel()">☰ Open Panel</button>
+    </div>
+ 
+
+    <!-- Search Bar and Button -->
+    <div id="search-container">
+        <input type="text" id="search-bar" placeholder="Search by ID...">
+        <button id="search-btn3">Search</button>
+          
+    </div>
+
+    <!-- Input Fields -->
+    <div id="input-fields">
+    
+      
+        <input type="text" id="De1" placeholder="Column 1">
+        <input type="text" id="De2" placeholder="Column 2">
+    </div>
+ 
+    
+  
+ <div class="sliding-panel" id="slidingPanel">
+          <button class="close-panel-btn" onclick="togglePanel()">&times;</button>
+        <div id="results"></div>
+    </div>
+
+    <!-- No Results Message -->
+    <div id="no-results" style="display: none;">No results found</div>
+
+
+
+    <button class="menu-button" onclick="toggleControls()">☰</button>
+
+    <div class="controls-panel" id="controlsPanel">
+
+        <button class="close-button" onclick="toggleControls()">&times;</button>
+        
+        <div class="controls">
+            <select id="paperSize">
+                <option value="a4">A4</option>
+                <option value="legal">Legal</option>
+                <option value="legal2">legal2</option>
+            </select>
+            <button class="download-btn" onclick="generatePDF()">
+                📥 Download PDF
+            </button>
+        </div>
+
+        <div class="position-controls">
+            <div class="control-group">
+                <h4>Element Positions</h4>
+                <div id="elementControls"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div id="preview" class="a4">
+        <img class="bg-image" src="a4-bg.jpg" alt="Background">
+        <input type="text" class="certificate-input" id="nationInput" placeholder="Nationality" value="Indian or ಭಾರತೀಯ"  readonly>
+       
+      
+          <input type="text" class="certificate-input" id="NoInput" placeholder="NO" >   
+          <input type="text" class="certificate-input" id="DateInput" placeholder="DATE" >
+          <input type="text" class="certificate-input" id="DiseInput" placeholder="DISECODE" >
+          <input type="text" class="certificate-input" id="SatsInput" placeholder="SATS-NO" >
+         
+          <input type="text" class="certificate-input" id="AdmissionnoInput" placeholder="ADMISSION-NO" >
+          <input type="text" class="certificate-input" id="AadharnoInput" placeholder="AADHAR-NO" >
+          <input type="text" class="certificate-input" id="StudentnameInput" placeholder="NAME OF THE STUDENT" >
+
+
+          <input type="text" class="certificate-input" id="NamefatherInput" placeholder="FATHER-NAME" >
+          <input type="text" class="certificate-input" id="NamemotherInput" placeholder="MOTHER-NAME" >
+          <input type="text" class="certificate-input" id="BirthdateInput" placeholder="DATE OF BIRTH" >
+          <input type="text" class="certificate-input" id="CasteInput" placeholder="CASTE" >
+
+
+
+          <input type="text" class="certificate-input" id="TalukInput" placeholder="TALUK" >
+          <input type="text" class="certificate-input" id="DistrictInput" placeholder="DISTRICT">
+          <input type="text" class="certificate-input" id="StateInput" placeholder="STATE" >
+           <input type="text" class="certificate-input" id= "PlaceInput" placeholder="PLACE" > 
+     
+         
+          
+
+
+
+
+
+    <input type="text"  class="certificate-input" id="GenderInput" list="suggestions" name="customValue" placeholder="GENDER">
+  <datalist id="suggestions">
+     <option value="ಹುಡುಗ">
+     <option value="ಹುಡುಗಿ">  
+     <option value="ಗಂಡು">
+     <option value="ಹೆಣ್ಣು">
+     <option value="Boy">
+     <option value="Girl">
+  </datalist>
+   
+ <input type="text"  class="certificate-input" id="aInput" list="aInputs" name="customValue" placeholder="ELECTIVE-STUDIED">
+  <datalist id="aInputs">
+     <option value="ವಿಜ್ಣಾನ, ಸಮಾಜ ವಿಜ್ಣಾನ  , ಗಣಿತ">
+     <option value="Science,Social-Science,Mathematics">
+     
+  </datalist>
+
+ <input type="text"  class="certificate-input" id="bInput" list="bInputs" name="customValue" placeholder="LANGUAGES">
+  <datalist id="bInputs">
+     <option value="ಕನ್ನಡ ,ಇಂಗ್ಲೀಷ ,ಉರ್ದು,">
+     <option value="Kannada,Urdu,English">
+     </datalist>
+
+  <input type="text"  class="certificate-input" id="cInput" list="cInputs" name="customValue" placeholder="Sheduled-caste">
+  <datalist id="cInputs">
+     <option value="ಹೌದು">
+     <option value="ಇಲ್ಲ">
+      <option value="Yes">
+       <option value="No">
+     </datalist>
+
+
+ <input type="text"  class="certificate-input" id="eInput" list="eInputs" name="customValue" placeholder="Scholarship">
+  <datalist id="eInputs">
+     <option value="ಹೌದು">
+     <option value="ಇಲ್ಲ">
+      <option value="Yes">
+       <option value="No">
+     </datalist>
+
+
+<input type="text"  class="certificate-input" id="fInput" list="fInputs" name="customValue" placeholder="Med-examine">
+  <datalist id="fInputs">
+     <option value="ಹೌದು">
+     <option value="ಇಲ್ಲ">
+      <option value="Yes">
+       <option value="No">
+     </datalist>
+
+<input type="text"  class="certificate-input" id="dInput" list="dInputs" name="customValue" placeholder="promotion">
+  <datalist id="dInputs">
+     <option value="ಹೌದು">
+     <option value="ಇಲ್ಲ">
+      <option value="Yes">
+       <option value="No">
+     </datalist>
+
+
+<input type="text"  class="certificate-input" id="mInput" list="mInputs" name="customValue" placeholder="Fee (paid or not)">
+  <datalist id="mInputs">
+     <option value="ಹೌದು">
+     <option value="ಇಲ್ಲ"> 
+      <option value="ಅನ್ವಯಿಸುದಿಲ್ಲ">
+      <option value="Yes">
+       <option value="No">
+      <option value="Notapplied">
+     </datalist>
+
+<input type="text"  class="certificate-input" id="nInput" list="nInputs" name="customValue" placeholder="FEE-CON">
+  <datalist id="nInputs">
+     <option value="ಹೌದು">
+     <option value="ಇಲ್ಲ">
+     <option value="ಅನ್ವಯಿಸುದಿಲ್ಲ">
+      <option value="Yes">
+       <option value="No">
+        <option value="Notapplied">
+     </datalist>
+
+
+<input type="text"  class="certificate-input" id="oInput" list="oInputs" name="customValue" placeholder="CHARACTER">
+  <datalist id="oInputs">
+     <option value="ಉತ್ತಮ    ,   ಚೆನ್ನಾಗಿ">
+     <option value="Good  , Good">
+      
+     </datalist>
+
+
+
+      <input type="text" class="certificate-input" id= "gInput" placeholder="LAD" > 
+        
+     <input type="text" class="certificate-input" id= "hInput" placeholder="MEDIUM" >
+   <input type="text" class="certificate-input" id= "iInput" placeholder="PROMOTION-DATE" >
+   <input type="text" class="certificate-input" id= "jInput" placeholder="TC-APP-DATE" >
+   <input type="text" class="certificate-input" id= "kInput" placeholder="TC-ISSUE-DATE" >
+    <input type="text" class="certificate-input" id= "lInput" placeholder="NO-OF-DAYS" >
+    <input type="text" class="certificate-input" id= "pInput" placeholder="DAYS-ATTEND" >
+
+    <input type="text" class="certificate-input" id= "Datebinword" placeholder="DATEOFBIRTH IN WORD" >
+    <input type="text" class="certificate-input" id= "ReligionInput" placeholder="RELIGON" >
+    <input type="text" class="certificate-input" id= "ClassinwordInput" placeholder="CLASS IN WORD" >
+   
+     
+   
+
+
+  
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="loader"></div>
+        <div>Generating Certificate...</div>
+    </div>
+
+<div id="saveDialog" class="dialog-container">
+  <div class="dialog">
+    <h3>Save PDF As</h3>
+    <input type="text" id="pdfName" placeholder="Enter file name" autofocus>
+    <div class="dialog-buttons">
+      <button onclick="cancelSave()">Cancel</button>
+      <button onclick="confirmSave()" class="primary">Save</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        document.getElementById('search-btn3').addEventListener('click', searchSheet);
+
+        // Mapping of column numbers to input field IDs
+        const columnToInputMap = {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput", 
+            2: "SatsInput", 
+            3: "GenderInput",
+            4:"BirthdateInput", 
+            5:"PlaceInput",
+            6:"NamefatherInput",
+            7:"NamemotherInput",
+            9:"CasteInput",
+            10:"hInput",
+
+        };
+
+        function searchSheet() {
+            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';  // Replace with your Google Sheet ID
+            const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+            fetch(xlsxUrl)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[8]; // Replace with the correct sheet index or name
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+                    const headers = jsonSheet[0]; // Extract headers from the first row
+                    const dataRows = jsonSheet.slice(1); // Extract data rows
+
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = ''; // Clear previous results
+                    document.getElementById('no-results').style.display = 'none'; // Hide no results message
+
+                    let found = false;
+
+                    dataRows.forEach(row => {
+                        if (row.some(cell => String(cell).toLowerCase().includes(searchTerm))) {
+                            // Populate input fields based on the column number mapping
+                            for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                                const inputField = document.getElementById(inputId);
+                                if (inputField) {
+                                    inputField.value = row[columnIndex] || ''; // Assign row data to the input field
+                                }
+                            }
+
+                            // Create a card for the row
+                            const card = document.createElement('div');
+                            card.className = 'card';
+
+                            headers.forEach((header, index) => {
+                                const p = document.createElement('p');
+                                p.innerHTML = `<strong>${header}:</strong> ${row[index] || ''}`;
+                                card.appendChild(p);
+                            });
+
+                            resultsDiv.appendChild(card);
+                            found = true;
+                        }
+                    });
+
+                    if (!found) {
+                        document.getElementById('no-results').style.display = 'block'; // Show no results message
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+
+
+
+
+        function togglePanel() {
+            const panel = document.getElementById('slidingPanel');
+            panel.classList.toggle('open');
+        }
+ 
+    </script>
+
+    <script>
+        const state = {
+            currentSize: 'a4',
+            backgrounds: {
+                a4: 'A4.jpg',    // Match actual filenames
+                legal: 'dd.jpg',
+                legal2: 'ee.jpg'
+            },
+
+            paperSpecs: {
+                a4: { width: 210, height: 297, unit: 'mm' },
+                legal: { width: 216, height: 356, unit: 'mm' },
+                legal2: { width: 220, height: 360, unit: 'mm' }
+            },
+
+            positions: {
+                a4: {
+                    nationInput: { top: 30.2, left: 43, fontSize: 15 },
+                   
+                   
+                    GenderInput: { top: 30.2, left: 21, fontSize: 17 },
+                    NoInput: { top: 5, left: 90, fontSize: 16 },
+                    DateInput: { top: 6.5, left: 90, fontSize: 15 },
+                    DiseInput: { top: 11.6, left: 45, fontSize: 16 },
+                    SatsInput: { top: 12, left: 86.8, fontSize: 17 },
+
+                   
+                    AdmissionnoInput:{ top: 20, left: 73, fontSize: 15 },
+                    AadharnoInput: { top: 22.6, left: 73, fontSize: 15 },
+                    StudentnameInput: { top: 26, left: 73, fontSize: 17 },
+
+                    NamefatherInput: { top: 34.5, left: 73, fontSize: 17 },
+                    NamemotherInput:{ top: 32.7, left: 73, fontSize: 17 },
+                    BirthdateInput: { top: 43, left: 73, fontSize: 17 },
+                    ReligionInput: { top: 30, left: 69.5, fontSize: 13 },
+                    CasteInput: { top: 30.3, left: 88, fontSize: 13},
+
+
+                    TalukInput:{ top: 46.1, left: 36, fontSize: 13 },
+                    DistrictInput: { top: 47.6, left: 36, fontSize: 13 },
+                    StateInput: { top: 49, left: 36, fontSize: 13  },
+                    PlaceInput: { top: 44.7, left: 36, fontSize: 13 },
+                    Datebinword: { top: 47, left: 73, fontSize: 10 },
+
+                    
+                    ClassinwordInput: { top: 52.8, left: 73, fontSize: 15 }, 
+                    aInput: { top: 65, left: 25, fontSize: 13 },
+                    bInput: { top: 58, left: 41, fontSize: 13 },
+                    cInput: { top: 40.5, left: 45, fontSize: 15 },
+                    dInput: { top: 40.5, left: 88, fontSize: 15 },
+                    
+                    eInput: { top: 59.2, left: 93, fontSize: 15 },
+                    fInput: { top: 62.8, left: 92, fontSize: 15 },
+                    gInput: { top: 66, left: 91, fontSize: 15 },
+
+
+                    hInput: { top: 68, left: 49.6, fontSize: 12 },
+                    iInput: { top: 73.5, left: 40, fontSize: 14 },
+                    jInput: { top: 69.5, left: 89, fontSize: 16 },
+                    kInput: { top: 73.7, left: 91.3, fontSize: 16 },
+                    lInput: { top: 77.2, left: 92, fontSize: 16 },
+       
+                    
+                    mInput: { top: 79.31, left: 36, fontSize: 15 },
+                    nInput: { top: 82.3, left: 45, fontSize: 15 },
+                    oInput: { top: 84, left: 85, fontSize: 16 },
+                    pInput: { top: 80.5, left: 91, fontSize: 16 }
+
+
+                },
+                legal: {
+                    nationInput: { top: 28.5, left: 39.8, fontSize: 15 },
+                   
+                   
+                    GenderInput: { top: 28.8, left: 12.5, fontSize: 17 },
+                    NoInput: { top: 5.2, left: 86, fontSize: 16 },
+                    DateInput: { top: 7.2, left: 86, fontSize: 15 },
+                    DiseInput: { top: 13.5, left: 46, fontSize: 16 },
+                    SatsInput: { top: 13.5, left: 86, fontSize: 17 },
+
+                   
+                    AdmissionnoInput:{ top: 18.9, left: 73, fontSize: 15 },
+                    AadharnoInput: { top: 21, left: 73, fontSize: 15 },
+                    StudentnameInput: { top: 24, left: 73, fontSize: 17 },
+
+                    NamefatherInput: { top: 33.3, left: 73, fontSize: 17 },
+                    NamemotherInput:{ top: 31.3, left: 73, fontSize: 17 },
+                    BirthdateInput: { top: 41.8, left: 75, fontSize: 17 },
+                    ReligionInput: { top: 27.8, left: 64, fontSize: 15 },
+                    CasteInput: { top: 28, left: 84, fontSize: 16},
+
+
+                    TalukInput:{ top: 44.3, left: 43, fontSize: 15 },
+                    DistrictInput: { top: 46, left: 19.3, fontSize: 15 },
+                    StateInput: { top: 46, left: 43.1, fontSize: 15 },
+                    PlaceInput: { top: 44.3, left: 18.4, fontSize: 15 },
+                    Datebinword: { top: 45, left: 74, fontSize: 10 },
+
+                    
+                    ClassinwordInput: { top: 49.4, left: 73, fontSize: 15 }, 
+                    aInput: { top: 61, left: 25, fontSize: 16 },
+                    bInput: { top: 57, left: 41, fontSize: 16 },
+                    cInput: { top: 39, left: 35, fontSize: 16 },
+                    dInput: { top: 39, left: 73, fontSize: 16 },
+                    
+                    eInput: { top: 55.5, left: 77, fontSize: 16 },
+                    fInput: { top: 58.2, left: 88, fontSize: 16 },
+                    gInput: { top: 61.7, left: 89.7, fontSize: 16 },
+
+
+                    hInput: { top: 66, left: 25, fontSize: 16 },
+                    iInput: { top: 73, left: 25, fontSize: 16 },
+                    jInput: { top: 66.7, left: 78, fontSize: 16 },
+                    kInput: { top: 70.3, left: 78, fontSize: 16 },
+                    lInput: { top: 74, left: 86, fontSize: 16 },
+       
+                    
+                    mInput: { top: 78.6, left: 25, fontSize: 16 },
+                    nInput: { top: 83.8, left: 30, fontSize: 16 },
+                    oInput: { top: 83, left: 78, fontSize: 16 },
+                    pInput: { top: 78.6, left: 78, fontSize: 16 }
+
+
+   
+                },
+                legal2: {
+                    
+                    nationInput: { top: 28.5, left: 39.8, fontSize: 15 },
+                   
+                   
+                    GenderInput: { top: 28.8, left: 12.5, fontSize: 17 },
+                    NoInput: { top: 5.2, left: 86, fontSize: 16 },
+                    DateInput: { top: 7.2, left: 86, fontSize: 15 },
+                    DiseInput: { top: 13.5, left: 46, fontSize: 16 },
+                    SatsInput: { top: 13.5, left: 86, fontSize: 17 },
+
+                   
+                    AdmissionnoInput:{ top: 18.9, left: 73, fontSize: 15 },
+                    AadharnoInput: { top: 21, left: 73, fontSize: 15 },
+                    StudentnameInput: { top: 24, left: 73, fontSize: 17 },
+
+                    NamefatherInput: { top: 31, left: 73, fontSize: 16 },
+                    NamemotherInput:{ top: 32.7, left: 73, fontSize: 17 },
+                    BirthdateInput: { top: 41.8, left: 73, fontSize: 17 },
+                    ReligionInput: { top: 27.8, left: 64, fontSize: 15 },
+                    CasteInput: { top: 27, left: 84, fontSize: 16},
+
+
+                    TalukInput:{ top: 44.3, left: 43, fontSize: 15 },
+                    DistrictInput: { top: 46, left: 19.3, fontSize: 15 },
+                    StateInput: { top: 46, left: 43.1, fontSize: 15 },
+                    PlaceInput: { top: 44.3, left: 18.4, fontSize: 15 },
+                    Datebinword: { top: 45, left: 74, fontSize: 10 },
+
+                    
+                    ClassinwordInput: { top: 49.4, left: 73, fontSize: 15 }, 
+                    aInput: { top: 61, left: 25, fontSize: 16 },
+                    bInput: { top: 57, left: 41, fontSize: 16 },
+                    cInput: { top: 39, left: 35, fontSize: 16 },
+                    dInput: { top: 39, left: 73, fontSize: 16 },
+                    
+                    eInput: { top: 55.5, left: 77, fontSize: 16 },
+                    fInput: { top: 58.2, left: 88, fontSize: 16 },
+                    gInput: { top: 61.7, left: 89.7, fontSize: 16 },
+
+
+                    hInput: { top: 66, left: 25, fontSize: 16 },
+                    iInput: { top: 73, left: 25, fontSize: 16 },
+                    jInput: { top: 66.7, left: 78, fontSize: 16 },
+                    kInput: { top: 70.3, left: 78, fontSize: 16 },
+                    lInput: { top: 74, left: 86, fontSize: 16 },
+       
+                    
+                    mInput: { top: 78.6, left: 25, fontSize: 16 },
+                    nInput: { top: 83.8, left: 30, fontSize: 16 },
+                    oInput: { top: 83, left: 78, fontSize: 16 },
+                    pInput: { top: 78.6, left: 78, fontSize: 16 }
+
+
+                }
+            }
+        };
+
+        function toggleControls() {
+            document.getElementById('controlsPanel').classList.toggle('visible');
+        }
+
+        
+
+
+function updateElementPosition(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+        console.warn(`Element with ID "${elementId}" not found.`);
+        return;
+    }
+
+    const preview = document.getElementById('preview');
+    if (!preview) {
+        console.warn(`Preview container not found.`);
+        return;
+    }
+
+    // Ensure state.positions[state.currentSize] exists before accessing it
+    if (!state.positions || !state.positions[state.currentSize] || !state.positions[state.currentSize][elementId]) {
+        console.warn(`Position data not found for element: ${elementId}`);
+        return;
+    }
+
+    const { top, left, fontSize } = state.positions[state.currentSize][elementId];
+
+    // Convert percentages to pixels with boundary checks
+    const maxTop = 95; // 5% margin from bottom
+    const maxLeft = 95; // 5% margin from right
+
+    element.style.top = `${Math.min(top, maxTop)}%`;
+    element.style.left = `${Math.min(left, maxLeft)}%`;
+    element.style.fontSize = `${Math.min(fontSize, 72)}px`; // Max 72px font
+
+    // Force redraw
+    element.style.display = 'none';
+    element.offsetHeight;
+    element.style.display = 'block';
+}
+
+// Ensure the preview element exists before observing
+document.addEventListener("DOMContentLoaded", () => {
+    const preview = document.getElementById('preview');
+    if (preview) {
+        const resizeObserver = new ResizeObserver(() => {
+            if (state.positions && state.currentSize in state.positions) {
+                Object.keys(state.positions[state.currentSize]).forEach(updateElementPosition);
+            }
+        });
+        resizeObserver.observe(preview);
+    } else {
+        console.warn("ResizeObserver: Preview element not found.");
+    }
+
+    // Auto-resizing textareas
+    const textareas = document.querySelectorAll(".autoTextarea");
+    textareas.forEach(textarea => {
+        textarea.addEventListener("input", function () {
+            const preview = document.getElementById('preview');
+            if (!preview) {
+                console.warn("Textarea input: Preview element not found.");
+                return;
+            }
+
+            const maxHeight = preview.offsetHeight * 0.2;
+            this.style.height = "auto";
+            this.style.height = `${Math.min(this.scrollHeight, maxHeight)}px`;
+            updateElementPosition(this.id);
+        });
+    });
+});
+
+
+
+
+
+
+        function createPositionControls() {
+            const controlsDiv = document.getElementById('elementControls');
+            controlsDiv.innerHTML = '';
+
+            Object.entries(state.positions[state.currentSize]).forEach(([id, pos]) => {
+                const div = document.createElement('div');
+                div.className = 'control-group';
+                div.innerHTML = `
+                    <h4>${id.replace('Input', '')}</h4>
+                    <label>
+                        Top (%):
+                        <input type="number" value="${pos.top}" 
+                            data-element="${id}" data-prop="top">
+                    </label>
+                    <label>
+                        Left (%):
+                        <input type="number" value="${pos.left}" 
+                            data-element="${id}" data-prop="left">
+                    </label>
+                    <label>
+                        Font Size:
+                        <input type="number" value="${pos.fontSize}" 
+                            data-element="${id}" data-prop="fontSize">
+                    </label>
+                `;
+                controlsDiv.appendChild(div);
+            });
+
+            controlsDiv.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const element = this.dataset.element;
+                    const prop = this.dataset.prop;
+                    state.positions[state.currentSize][element][prop] = parseFloat(this.value) || 0;
+                    updateElementPosition(element);
+                });
+            });
+        }
+
+         
+         
+
+
+        // Ensure images have the crossorigin attribute
+      
+
+        // Event Listeners
+        document.getElementById('paperSize').addEventListener('change', function(e) {
+            state.currentSize = e.target.value;
+            document.getElementById('preview').className = state.currentSize;
+            updateBackground();
+            createPositionControls();
+            Object.keys(state.positions[state.currentSize]).forEach(updateElementPosition);
+        });
+
+        // Initialize
+        updateBackground();
+        createPositionControls();
+        Object.keys(state.positions[state.currentSize]).forEach(updateElementPosition);
+
+
+let pdfGenerationInProgress = false;
+
+async function generatePDF() {
+  if (pdfGenerationInProgress) return;
+
+  // Show save dialog
+  document.getElementById('saveDialog').style.display = 'flex';
+  document.getElementById('pdfName').value = `certificate-${Date.now()}`;
+}
+
+function cancelSave() {
+  document.getElementById('saveDialog').style.display = 'none';
+  pdfGenerationInProgress = false;
+}
+
+async function confirmSave() {
+  const dialog = document.getElementById('saveDialog');
+  const loading = document.getElementById('loading');
+  const preview = document.getElementById('preview');
+
+  pdfGenerationInProgress = true;
+  dialog.style.display = 'none';
+  loading.classList.add('show');
+
+  try {
+    // Get filename (sanitize input)
+    const fileNameInput = document.getElementById('pdfName').value.trim();
+    let fileName = fileNameInput || `certificate-${Date.now()}`;
+    if (!fileName.toLowerCase().endsWith('.pdf')) {
+      fileName += '.pdf';
+    }
+    fileName = fileName.replace(/[^a-zA-Z0-9_\-. ]/g, '_'); // Remove special chars
+
+    // Clone the preview container to avoid modifying the original DOM
+    const previewClone = preview.cloneNode(true);
+    previewClone.style.position = 'absolute';
+    previewClone.style.top = '-9999px'; // Move off-screen
+    document.body.appendChild(previewClone);
+
+    // Update textareas in the cloned container
+    const textareas = previewClone.querySelectorAll(".autoTextarea");
+    textareas.forEach(textarea => {
+      textarea.style.height = "auto";
+      textarea.style.whiteSpace = "pre-wrap";
+      textarea.style.wordBreak = "break-word";
+      textarea.style.overflowWrap = "anywhere";
+      textarea.style.overflow = "hidden";
+      const newHeight = Math.min(textarea.scrollHeight, 500);
+      textarea.style.height = `${newHeight}px`;
+    });
+
+    // Replace textareas with divs in the cloned container
+    textareas.forEach(textarea => {
+      const computedStyle = window.getComputedStyle(textarea);
+      const div = document.createElement("div");
+      div.style.cssText = `
+        width: ${textarea.offsetWidth}px;
+        min-height: ${textarea.offsetHeight}px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        font: ${computedStyle.font};
+        line-height: ${computedStyle.lineHeight};
+        box-sizing: ${computedStyle.boxSizing};
+        padding: ${computedStyle.padding};
+        border: ${computedStyle.border};
+        background: ${computedStyle.background};
+        color: ${computedStyle.color};
+        text-align: ${computedStyle.textAlign};
+        display: block;
+      `;
+      div.innerHTML = textarea.value.replace(/\n/g, "<br>");
+      textarea.parentNode.replaceChild(div, textarea);
+    });
+
+    // Wait for DOM updates to complete
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // Capture the cloned container with html2canvas
+    const canvas = await html2canvas(previewClone, {
+      scale: window.devicePixelRatio * 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: null,
+      windowWidth: previewClone.scrollWidth,
+      windowHeight: previewClone.scrollHeight
+    });
+
+    // Remove the cloned container from the DOM
+    document.body.removeChild(previewClone);
+
+    // Create PDF using jsPDF
+    const pdf = new jspdf.jsPDF({
+      unit: 'mm',
+      format: state.currentSize === 'a4' ? 'a4' : 
+            state.currentSize === 'legal' ? [216, 356] : 
+            [220, 360],
+      compress: true,
+      hotfixes: ["px_scaling"]
+    });
+
+    // Add the captured image to the PDF
+    const imgWidth = pdf.internal.pageSize.getWidth();
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(canvas.toDataURL('image/png', 1.0), 'PNG', 
+      0, 0, imgWidth, imgHeight, 
+      undefined, 'MEDIUM');
+
+    // Save the PDF with custom name
+    pdf.save(fileName);
+
+  } catch (error) {
+    console.error('PDF Generation Error:', error);
+    alert(`PDF Generation Failed: ${error.message}`);
+  } finally {
+    loading.classList.remove('show');
+    pdfGenerationInProgress = false;
+  }
+}
+
+
+
+
+  function updateBackground() {
+            const bgImage = document.querySelector('.bg-image');
+            bgImage.crossOrigin = "Anonymous";
+            bgImage.src = state.backgrounds[state.currentSize] + '?v=' + Date.now();
+            
+            // Add error handling
+            bgImage.onerror = function() {
+                console.error('Failed to load background image');
+                alert('Error loading background image. Please check CORS settings.');
+            };
+        }
+
+
+
+function setTodayDate() {
+    // Create a new Date object for the current date
+    const today = new Date();
+
+    // Get the year, month, and day parts from the date
+    const year = today.getFullYear();
+    let month = today.getMonth() + 1; // Months are zero-based, so add 1
+    let day = today.getDate();
+
+    // Add leading zeros to month and day if necessary
+    month = month < 10 ? '0' + month : month;
+    day = day < 10 ? '0' + day : day;
+
+    // Format the date as DD-MM-YYYY
+    const formattedDate = `${day}-${month}-${year}`;
+
+    // Set the value of the input field to the formatted date
+    document.getElementById('DateInput').value = formattedDate;
+}
+
+// Call the function to set the date when the page loads
+window.onload = setTodayDate;
+
+
+
+</script>
+
+</body>
+</html>

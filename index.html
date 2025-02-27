@@ -109,20 +109,23 @@
         }
      
       
-        .certificate-input {
-            position: absolute;
-            border: none;
-            background: transparent;
-             color: #222; /* Slightly darker for headings */
-            font-family: 'Georgia', serif
-           
-            padding: 10px 20px 15px 5px;
-            outline: none;
-            text-align: center;
-            transform: translate(-50%, -50%);
-            min-width: 400px;
-        }
+      .certificate-input {
+    position: absolute;
+    border: 1px solid transparent;  /* Changed from 'none' to transparent border */
+    background: transparent;
+    color: #222;
+    font-family: 'Georgia', serif;  /* Added missing semicolon here */
+    padding: 10px 20px 15px 5px;
+    outline: none;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    min-width: 400px;
+    transition: border-color 0.3s ease; /* Smooth transition for border */
+}
 
+.certificate-input:hover {
+    border-color: #222; /* Shows border on hover */
+}
      
 
 
@@ -284,22 +287,30 @@ font-weight: bold;
   }
 
    
-  #ReligionInput{
-    width: 65px; /* Fixed width */
-    min-height: 50px;
-    max-height: 500px;
-    font-size: 16px;
-    overflow: hidden;
-    resize: none; /* Prevent manual resizing */
-    padding: 5px;
-    border: 1px solid rgba(0,0,0,0.0);
-    text-align: center;
-    display: block;
-    box-sizing: border-box;
+  #CasteInput {
+    position: absolute;
+    border: none;
     background: transparent;
-     color: #222; /* Slightly darker for headings */
-    font-family: 'Georgia', serif
+    color: #222; /* Slightly darker for headings */
+    font-family: 'Georgia', serif; /* Added missing semicolon */
+    padding: 10px 20px 15px 5px;
+    outline: none;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    min-width: 50px; /* Changed from 200px to 50px */
+}
 
+#ReligionInput {
+    position: absolute;
+    border: none;
+    background: transparent;
+    color: #222; /* Slightly darker for headings */
+    font-family: 'Georgia', serif; /* Added missing semicolon */
+    padding: 10px 20px 15px 5px;
+    outline: none;
+    text-align: center;
+    transform: translate(-50%, -50%);
+    min-width: 50px; /* Changed from 200px to 50px */
 }
 
 #classinwordInput{
@@ -327,11 +338,7 @@ font-weight: bold;
 
 
 
-.certificate-input, .autoTextarea {
-            transform: translate(-50%, -50%) scale(0.999);
-            backface-visibility: hidden;
-            will-change: transform;
-        }
+
 
 
 
@@ -582,13 +589,7 @@ font-weight: bold;
           
     </div>
 
-    <!-- Input Fields -->
-    <div id="input-fields">
-    
-      
-        <input type="text" id="De1" placeholder="Column 1">
-        <input type="text" id="De2" placeholder="Column 2">
-    </div>
+
  
     
   
@@ -648,7 +649,7 @@ font-weight: bold;
 
           <input type="text" class="certificate-input" id="NamefatherInput" placeholder="FATHER-NAME" >
           <input type="text" class="certificate-input" id="NamemotherInput" placeholder="MOTHER-NAME" >
-          <input type="text" class="certificate-input" id="BirthdateInput" placeholder="DATE OF BIRTH" >
+          <input type="text" class="certificate-input" id="BirthdateInput" placeholder="DATE OF BIRTH" > 
           <input type="text" class="certificate-input" id="CasteInput" placeholder="CASTE" >
 
 
@@ -915,37 +916,37 @@ font-weight: bold;
                     NamemotherInput:{ top: 32.7, left: 73, fontSize: 17 },
                     BirthdateInput: { top: 43, left: 73, fontSize: 17 },
                     ReligionInput: { top: 30, left: 69.5, fontSize: 13 },
-                    CasteInput: { top: 30.3, left: 88, fontSize: 13},
+                    CasteInput: { top: 30.3, left: 86, fontSize: 15},
 
 
-                    TalukInput:{ top: 46.1, left: 36, fontSize: 13 },
-                    DistrictInput: { top: 47.6, left: 36, fontSize: 13 },
-                    StateInput: { top: 49, left: 36, fontSize: 13  },
-                    PlaceInput: { top: 44.7, left: 36, fontSize: 13 },
+                    TalukInput:{ top: 45.8, left: 36, fontSize: 14 },
+                    DistrictInput: { top: 47.2, left: 36, fontSize: 14 },
+                    StateInput: { top: 48.6, left: 36, fontSize: 14  },
+                    PlaceInput: { top: 44.5, left: 36, fontSize: 14 },
                     Datebinword: { top: 47, left: 73, fontSize: 10 },
 
                     
                     ClassinwordInput: { top: 52.8, left: 73, fontSize: 15 }, 
                     aInput: { top: 65, left: 25, fontSize: 13 },
                     bInput: { top: 58, left: 41, fontSize: 13 },
-                    cInput: { top: 40.5, left: 45, fontSize: 15 },
-                    dInput: { top: 40.5, left: 88, fontSize: 15 },
+                    cInput: { top: 40, left: 45, fontSize: 19 },
+                    dInput: { top: 40, left: 88, fontSize: 19 },
                     
                     eInput: { top: 59.2, left: 93, fontSize: 15 },
                     fInput: { top: 62.8, left: 92, fontSize: 15 },
                     gInput: { top: 66, left: 91, fontSize: 15 },
 
 
-                    hInput: { top: 68, left: 49.6, fontSize: 12 },
-                    iInput: { top: 73.5, left: 40, fontSize: 14 },
+                    hInput: { top: 67.8, left: 49, fontSize: 14 },
+                    iInput: { top: 73.2, left: 45.4, fontSize: 17 },
                     jInput: { top: 69.5, left: 89, fontSize: 16 },
                     kInput: { top: 73.7, left: 91.3, fontSize: 16 },
-                    lInput: { top: 77.2, left: 92, fontSize: 16 },
+                    lInput: { top: 77.1, left: 92, fontSize: 16 },
        
                     
-                    mInput: { top: 79.31, left: 36, fontSize: 15 },
-                    nInput: { top: 82.3, left: 45, fontSize: 15 },
-                    oInput: { top: 84, left: 85, fontSize: 16 },
+                    mInput: { top: 78.8, left: 36, fontSize: 17 },
+                    nInput: { top: 81.8, left: 45, fontSize: 17 },
+                    oInput: { top: 83.3, left: 85, fontSize: 19 },
                     pInput: { top: 80.5, left: 91, fontSize: 16 }
 
 
@@ -963,7 +964,7 @@ font-weight: bold;
                    
                     AdmissionnoInput:{ top: 18.9, left: 73, fontSize: 15 },
                     AadharnoInput: { top: 21, left: 73, fontSize: 15 },
-                    StudentnameInput: { top: 24, left: 73, fontSize: 18 },
+                    StudentnameInput: { top: 24, left: 73, fontSize: 17 },
 
                     NamefatherInput: { top: 33.3, left: 73, fontSize: 17 },
                     NamemotherInput:{ top: 31.3, left: 73, fontSize: 17 },

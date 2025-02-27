@@ -640,7 +640,7 @@ font-weight: bold;
       
           <input type="text" class="certificate-input" id="NoInput" placeholder="NO" >   
           <input type="text" class="certificate-input" id="DateInput" placeholder="DATE" >
-          <input type="text" class="certificate-input" id="DiseInput" placeholder="DISECODE" >
+          <input type="text" class="certificate-input" id="DiseInput" placeholder="DISECODE" readonly>
           <input type="text" class="certificate-input" id="SatsInput" placeholder="SATS-NO" >
          
           <input type="text" class="certificate-input" id="AdmissionnoInput" placeholder="ADMISSION-NO" >
@@ -765,7 +765,7 @@ font-weight: bold;
     <input type="text" class="certificate-input" id= "pInput" placeholder="DAYS-ATTEND" >
 
     <input type="text" class="certificate-input" id= "Datebinword" placeholder="DATEOFBIRTH IN WORD" >
-    <input type="text" class="certificate-input" id= "ReligionInput" placeholder="RELIGON" >
+    <input type="text" class="certificate-input" id= "ReligionInput" placeholder="RELIGON" readonly>
     <input type="text" class="certificate-input" id= "ClassinwordInput" placeholder="CLASS IN WORD" >
    
      
@@ -819,7 +819,7 @@ font-weight: bold;
 
        function searchSheet() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const sheetID = '17swQAro_41BucdvsmVNX_vFftvke2zWeMhC6-pj4cEs';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
 
     fetch(xlsxUrl)
@@ -906,7 +906,7 @@ font-weight: bold;
                     GenderInput: { top: 30.2, left: 21, fontSize: 17 },
                     NoInput: { top: 5, left: 90, fontSize: 16 },
                     DateInput: { top: 6.5, left: 90, fontSize: 15 },
-                    DiseInput: { top: 11.6, left: 45, fontSize: 16 },
+                    DiseInput: { top: 11.8, left: 45, fontSize: 16 },
                     SatsInput: { top: 12, left: 86.8, fontSize: 17 },
 
                    
@@ -914,17 +914,17 @@ font-weight: bold;
                     AadharnoInput: { top: 22.6, left: 73, fontSize: 15 },
                     StudentnameInput: { top: 26, left: 73, fontSize: 17 },
 
-                    NamefatherInput: { top: 34.5, left: 73, fontSize: 17 },
-                    NamemotherInput:{ top: 32.7, left: 73, fontSize: 17 },
+                    NamefatherInput: { top: 34.8, left: 73, fontSize: 18 },
+                    NamemotherInput:{ top: 32.7, left: 73, fontSize: 18 },
                     BirthdateInput: { top: 43, left: 73, fontSize: 17 },
-                    ReligionInput: { top: 30, left: 69.5, fontSize: 13 },
+                    ReligionInput: { top: 30, left: 69.5, fontSize: 20 },
                     CasteInput: { top: 30.3, left: 86, fontSize: 15},
 
 
-                    TalukInput:{ top: 45.8, left: 36, fontSize: 14 },
-                    DistrictInput: { top: 47.2, left: 36, fontSize: 14 },
-                    StateInput: { top: 48.6, left: 36, fontSize: 14  },
-                    PlaceInput: { top: 44.5, left: 36, fontSize: 14 },
+                    TalukInput:{ top: 45, left: 45, fontSize: 17 },
+                    DistrictInput: { top: 48, left: 30, fontSize: 16 },
+                    StateInput: { top: 48, left: 45, fontSize: 17  },
+                    PlaceInput: { top: 45, left: 30, fontSize: 17 },
                     Datebinword: { top: 47, left: 73, fontSize: 10 },
 
                     
@@ -946,8 +946,8 @@ font-weight: bold;
                     lInput: { top: 77.1, left: 92, fontSize: 16 },
        
                     
-                    mInput: { top: 78.8, left: 36, fontSize: 17 },
-                    nInput: { top: 81.8, left: 45, fontSize: 17 },
+                    mInput: { top: 79.5, left: 36, fontSize: 17 },
+                    nInput: { top: 82, left: 45, fontSize: 17 },
                     oInput: { top: 83.3, left: 85, fontSize: 19 },
                     pInput: { top: 80.5, left: 91, fontSize: 16 }
 

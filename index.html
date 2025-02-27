@@ -816,61 +816,62 @@ font-weight: bold;
 
         };
 
-        function searchSheet() {
-            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-            const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';  // Replace with your Google Sheet ID
-            const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+       function searchSheet() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
 
-            fetch(xlsxUrl)
-                .then(response => response.arrayBuffer())
-                .then(data => {
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[8]; // Replace with the correct sheet index or name
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[8];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
-                    const headers = jsonSheet[0]; // Extract headers from the first row
-                    const dataRows = jsonSheet.slice(1); // Extract data rows
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
 
-                    const resultsDiv = document.getElementById('results');
-                    resultsDiv.innerHTML = ''; // Clear previous results
-                    document.getElementById('no-results').style.display = 'none'; // Hide no results message
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
 
-                    let found = false;
+            let found = false;
 
-                    dataRows.forEach(row => {
-                        if (row.some(cell => String(cell).toLowerCase().includes(searchTerm))) {
-                            // Populate input fields based on the column number mapping
-                            for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
-                                const inputField = document.getElementById(inputId);
-                                if (inputField) {
-                                    inputField.value = row[columnIndex] || ''; // Assign row data to the input field
-                                }
-                            }
-
-                            // Create a card for the row
-                            const card = document.createElement('div');
-                            card.className = 'card';
-
-                            headers.forEach((header, index) => {
-                                const p = document.createElement('p');
-                                p.innerHTML = `<strong>${header}:</strong> ${row[index] || ''}`;
-                                card.appendChild(p);
-                            });
-
-                            resultsDiv.appendChild(card);
-                            found = true;
+            dataRows.forEach(row => {
+                // Check only first and second columns (index 0 and 1)
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Rest of your code remains the same
+                    for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) {
+                            inputField.value = row[columnIndex] || '';
                         }
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    headers.forEach((header, index) => {
+                        const p = document.createElement('p');
+                        p.innerHTML = `<strong>${header}:</strong> ${row[index] || ''}`;
+                        card.appendChild(p);
                     });
 
-                    if (!found) {
-                        document.getElementById('no-results').style.display = 'block'; // Show no results message
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-        }
+                    resultsDiv.appendChild(card);
+                    found = true;
+                }
+            });
 
-
+            if (!found) {
+                document.getElementById('no-results').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
 
 
 

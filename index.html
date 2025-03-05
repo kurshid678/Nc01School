@@ -402,6 +402,7 @@ font-weight: bold;
             gap: 20px;
             transition: transform 0.5s ease-in-out;
             transform: translateX(0);
+            overflow: auto;
         }
 
         .results-slide-out {
@@ -801,18 +802,42 @@ font-weight: bold;
     <script>
             // Mapping of column numbers to input field IDs
         // Mapping of column numbers to input field IDs
-const columnToInputMap = {
-    0: "AdmissionnoInput",
-    1: "StudentnameInput", 
-    2: "SatsInput", 
-    3: "GenderInput",
-    4: "BirthdateInput", 
-    6: "PlaceInput",
-    7: "NamefatherInput",
-    8: "NamemotherInput",
-    10: "CasteInput",
-    11: "hInput",
-    5: "Datebinword"
+// Define different column mappings for different sheets
+const sheetMappings = {
+    // Mapping for Sheet 1 (index 0)
+    0: {
+        name: "Student Information",
+        columns: {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput",
+            2: "SatsInput",
+            3: "GenderInput",
+            4: "BirthdateInput",
+            5: "Datebinword"
+        }
+    },
+    // Mapping for Sheet 3 (index 2)
+    2: {
+        name: "Parent Details",
+        columns: {
+            0: "ParentIDInput",
+            1: "FatherNameInput",
+            2: "MotherNameInput",
+            3: "ContactInput",
+            4: "AddressInput"
+        }
+    },
+    // Mapping for Sheet 9 (index 8)
+    8: {
+        name: "Academic Records",
+        columns: {
+            0: "RecordIDInput",
+            1: "CourseInput",
+            2: "GradeInput",
+            3: "YearInput",
+            4: "SchoolInput"
+        }
+    }
 };
 
 // Add event listeners to all search buttons
@@ -825,6 +850,11 @@ function searchSheet(event) {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    // Get the appropriate mapping for the sheet
+    const currentMapping = sheetMappings[sheetIndex] || {};
+    const columnMap = currentMapping.columns || {};
+    const sheetDisplayName = currentMapping.name || `Sheet ${sheetIndex + 1}`;
 
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
@@ -855,14 +885,20 @@ function searchSheet(event) {
                     card.className = 'result-card';
                     
                     // Create card content
-                    let cardContent = `<div class="card-header">Match Found in ${sheetName}</div>`;
+                    let cardContent = `<div class="card-header">Match Found in ${sheetDisplayName}</div>`;
                     cardContent += '<div class="card-body">';
 
-                    // Add columns with headers and values
-                    Object.entries(columnToInputMap).forEach(([colIndex, inputId]) => {
+                    // Add columns with headers and values using sheet-specific mapping
+                    Object.entries(columnMap).forEach(([colIndex, inputId]) => {
                         const headerText = headers[colIndex] || `Column ${colIndex}`;
                         const cellValue = row[colIndex] || 'N/A';
                         
+                        // Populate input fields
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) {
+                            inputField.value = cellValue;
+                        }
+
                         cardContent += `
                             <div class="data-row">
                                 <span class="data-label">${headerText}:</span>
@@ -886,6 +922,8 @@ function searchSheet(event) {
             resultsDiv.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
         });
 }
+
+// Keep the rest of the code (styles and togglePanel function) the same
 
 // Add styles for results
 const style = document.createElement('style');

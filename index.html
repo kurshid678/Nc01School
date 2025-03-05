@@ -801,21 +801,22 @@ font-weight: bold;
    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
           // Sheet configurations with different column-to-input mappings
+// Sheet configurations with different column-to-input mappings
 const sheetConfigs = {
     7: {  // Sheet index 7
         name: "Personal Details",
         columnMappings: {
-            2: "BirthdateInput",  // Column 2 → BirthdateInput
-            4: "CasteInput",      // Column 4 → CasteInput
-            5: "hInput"           // Column 5 → hInput
+            2: "BirthdateInput",
+            4: "CasteInput",
+            5: "hInput"
         }
     },
     8: {  // Sheet index 8
         name: "Academic Records",
         columnMappings: {
-            1: "BirthdateInput",  // Column 1 → BirthdateInput (different column than sheet 7)
-            3: "CasteInput",      // Column 3 → CasteInput
-            6: "hInput"           // Column 6 → hInput
+            1: "BirthdateInput",
+            3: "CasteInput",
+            6: "hInput"
         }
     }
 };
@@ -823,54 +824,108 @@ const sheetConfigs = {
 function searchSheet(event) {
     const sheetIndex = parseInt(event.currentTarget.dataset.sheetIndex);
     const config = sheetConfigs[sheetIndex] || {};
+    console.log(`Searching sheet index: ${sheetIndex}`, config);
+
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
 
     fetch(`https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`)
-    .then(response => response.arrayBuffer())
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.arrayBuffer();
+    })
     .then(data => {
         const workbook = XLSX.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[sheetIndex];
+        console.log(`Processing sheet: ${sheetName}`);
+        
         const worksheet = workbook.Sheets[sheetName];
         const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+        console.log('Sheet data:', jsonSheet);
 
         processData(jsonSheet, config, searchTerm, sheetName);
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        document.getElementById('results').innerHTML = `
+            <div class="error">Error: ${error.message}</div>
+        `;
     });
 }
 
 function processData(data, config, searchTerm, sheetName) {
-    const headers = data[0];
+    if (!data || data.length === 0) {
+        console.error('No data found in sheet');
+        return;
+    }
+
+    const headers = data[0] || [];
     const rows = data.slice(1);
     const resultsDiv = document.getElementById('results');
     
     resultsDiv.innerHTML = '';
     document.getElementById('no-results').style.display = 'none';
-    clearInputs(config);
+
+    // Clear inputs only for current config
+    if (config.columnMappings) {
+        clearInputs(config.columnMappings);
+    }
 
     let found = false;
 
-    rows.forEach(row => {
-        if (row.some(cell => String(cell).toLowerCase().includes(searchTerm))) {
+    rows.forEach((row, rowIndex) => {
+        const match = row.some((cell, colIndex) => {
+            const cellValue = String(cell || '').toLowerCase();
+            return cellValue.includes(searchTerm);
+        });
+
+        if (match) {
             found = true;
+            console.log(`Match found in row ${rowIndex}`, row);
             createResultCard(row, headers, sheetName, resultsDiv);
-            mapInputs(row, config.columnMappings);
+            
+            if (config.columnMappings) {
+                mapInputs(row, config.columnMappings);
+            }
         }
     });
 
-    if (!found) document.getElementById('no-results').style.display = 'block';
+    if (!found) {
+        console.log('No matches found');
+        document.getElementById('no-results').style.display = 'block';
+    }
 }
 
 function mapInputs(row, mappings) {
-    // Clear previous inputs first
+    console.log('Mapping inputs with:', mappings);
+    
+    // Clear previous mapped inputs
     Object.values(mappings).forEach(inputId => {
         const inputField = document.getElementById(inputId);
-        if (inputField) inputField.value = '';
+        if (inputField) {
+            console.log(`Clearing ${inputId}`);
+            inputField.value = '';
+        }
     });
 
     // Set new values
-    Object.entries(mappings).forEach(([colIndex, inputId]) => {
+    Object.entries(mappings).forEach(([colIndexStr, inputId]) => {
+        const colIndex = parseInt(colIndexStr, 10);
         const inputField = document.getElementById(inputId);
-        if (inputField) inputField.value = row[colIndex] || '';
+        
+        if (inputField) {
+            const value = row[colIndex] ?? '';
+            console.log(`Setting ${inputId} to ${value} from column ${colIndex}`);
+            inputField.value = value;
+        }
+    });
+}
+
+function clearInputs(mappings) {
+    console.log('Clearing inputs for:', mappings);
+    Object.values(mappings).forEach(inputId => {
+        const field = document.getElementById(inputId);
+        if (field) field.value = '';
     });
 }
 
@@ -878,31 +933,22 @@ function createResultCard(row, headers, sheetName, container) {
     const card = document.createElement('div');
     card.className = 'result-card';
     
-    let content = `<div class="card-header">${sheetName}</div>`;
+    let content = `<div class="card-header">${sheetName}</div><div class="card-body">`;
     
     headers.forEach((header, index) => {
+        const value = row[index] ?? 'N/A';
         content += `
             <div class="data-row">
-                <span class="data-label">${header}:</span>
-                <span class="data-value">${row[index] || 'N/A'}</span>
+                <span class="data-label">${header || `Column ${index}`}:</span>
+                <span class="data-value">${value}</span>
             </div>
         `;
     });
 
+    content += '</div>';
     card.innerHTML = content;
     container.appendChild(card);
-}
-
-function clearInputs(config) {
-    if (config.columnMappings) {
-        Object.values(config.columnMappings).forEach(inputId => {
-            const field = document.getElementById(inputId);
-            if (field) field.value = '';
-        });
     }
-        }
-
-;
 
 // Toggle panel function
 function togglePanel() {

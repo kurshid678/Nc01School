@@ -799,7 +799,87 @@ font-weight: bold;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
-        
+            // Mapping of column numbers to input field IDs
+        const columnToInputMap = {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput",
+            2: "SatsInput",
+            3: "GenderInput",
+            4: "BirthdateInput",
+            5: "Datebinword",
+            6: "PlaceInput",
+            7: "NamefatherInput",
+            8: "NamemotherInput",
+            10: "CasteInput",
+            11: "hInput"
+        };
+
+        // Add event listeners to all search buttons
+        document.querySelectorAll('.search-btn').forEach(button => {
+            button.addEventListener('click', searchSheet);
+        });
+
+        // Search Function
+        function searchSheet(event) {
+            const sheetIndex = parseInt(event.currentTarget.dataset.sheetIndex); // Get sheet index from button
+            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+            const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+            fetch(xlsxUrl)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[sheetIndex]; // Use dynamic sheet index
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+                    const headers = jsonSheet[0];
+                    const dataRows = jsonSheet.slice(1);
+
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '';
+                    document.getElementById('no-results').style.display = 'none';
+
+                    let found = false;
+
+                    dataRows.forEach(row => {
+                        // Check only first and second columns (index 0 and 1)
+                        const firstCol = String(row[0] || '').toLowerCase();
+                        const secondCol = String(row[1] || '').toLowerCase();
+
+                        if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                            found = true;
+
+                            // Populate input fields
+                            for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                                const inputField = document.getElementById(inputId);
+                                if (inputField) {
+                                    inputField.value = row[columnIndex] || '';
+                                }
+                            }
+
+                            // Create a result card
+                            const card = document.createElement('div');
+                            card.innerHTML = `<strong>${row[0]}</strong> - ${row[1]}`;
+                            resultsDiv.appendChild(card);
+                        }
+                    });
+
+                    if (!found) {
+                        document.getElementById('no-results').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching or processing the sheet:', error);
+                });
+        }
+
+        // Toggle Sliding Panel
+        function togglePanel() {
+            const panel = document.getElementById('slidingPanel');
+            panel.classList.toggle('open');
+    }
 
  
     </script>

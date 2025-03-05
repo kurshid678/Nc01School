@@ -802,133 +802,112 @@ font-weight: bold;
     <script>
             // Mapping of column numbers to input field IDs
         // Mapping of column numbers to input field IDs
-// Define different column mappings for different sheets
-const sheetMappings = {
-    // Mapping for Sheet 1 (index 0)
-    6: {
-        name: "Student Information",
-        columns: {
-            0: "AdmissionnoInput",
-    1: "StudentnameInput", 
-    2: "SatsInput", 
-    3: "GenderInput",
-    4: "BirthdateInput", 
-    6: "PlaceInput",
-    7: "NamefatherInput",
-    8: "NamemotherInput",
-    10: "CasteInput",
-    11: "hInput",
-    5: "Datebinword"
+
+                    
+                    const sheetConfigs = {
+            0: { // First sheet (index 0)
+                name: "Student Records",
+                inputMap: {
+                    0: "AdmissionnoInput",
+                    1: "StudentnameInput",
+                    2: "SatsInput"
+                }
+            },
+            8: { // Ninth sheet (index 8)
+                name: "Academic Details",
+                inputMap: {
+                    4: "BirthdateInput",
+                    5: "Datebinword",
+                    10: "CasteInput"
+                }
+            }
+        };
+
+        document.querySelectorAll('.search-btn').forEach(button => {
+            button.addEventListener('click', searchSheet);
+        });
+
+        function searchSheet(event) {
+            const sheetIndex = parseInt(event.currentTarget.dataset.sheetIndex);
+            const config = sheetConfigs[sheetIndex] || {};
+            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+            const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+
+            fetch(`https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[sheetIndex];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+                    processResults(jsonSheet, config, searchTerm, sheetName);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('results').innerHTML = 
+                        `<div class="error">Error loading data: ${error.message}</div>`;
+                });
         }
-    },
-    // Mapping for Sheet 3 (index 2)
-    7: {
-        name: "Parent Details",
-        columns: {
-            0: "AdmissionnoInput",
-    1: "StudentnameInput", 
-    2: "SatsInput", 
-    3: "GenderInput",
-    4: "BirthdateInput", 
-    6: "PlaceInput",
-    7: "NamefatherInput",
-    8: "NamemotherInput",
-    10: "CasteInput",
-    11: "hInput",
-    5: "Datebinword"
-        }
-    },
-    // Mapping for Sheet 9 (index 8)
-    8: {
-        name: "Academic Records",
-        columns: {
-                0: "AdmissionnoInput",
-    1: "StudentnameInput", 
-    2: "SatsInput", 
-    3: "GenderInput",
-    4: "BirthdateInput", 
-    6: "PlaceInput",
-    7: "NamefatherInput",
-    8: "NamemotherInput",
-    10: "CasteInput",
-    11: "hInput",
-    5: "Datebinword"
-        }
-    }
-};
 
-// Add event listeners to all search buttons
-document.querySelectorAll('.search-btn').forEach(button => {
-    button.addEventListener('click', searchSheet);
-});
-
-function searchSheet(event) {
-    const sheetIndex = parseInt(event.currentTarget.dataset.sheetIndex);
-    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
-    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
-
-    fetch(xlsxUrl)
-        .then(response => response.arrayBuffer())
-        .then(data => {
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[sheetIndex];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
-
-            const headers = jsonSheet[0];
-            const dataRows = jsonSheet.slice(1);
-
+        function processResults(data, config, searchTerm, sheetName) {
+            const headers = data[0];
+            const rows = data.slice(1);
             const resultsDiv = document.getElementById('results');
+            
             resultsDiv.innerHTML = '';
             document.getElementById('no-results').style.display = 'none';
+            clearInputs(config);
 
             let found = false;
 
-            dataRows.forEach(row => {
-                const firstCol = String(row[0] || '').toLowerCase();
-                const secondCol = String(row[1] || '').toLowerCase();
-                
-                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+            rows.forEach(row => {
+                if (row.some((cell, index) => String(cell).toLowerCase().includes(searchTerm))) {
                     found = true;
-
-                    // Create result card
-                    const card = document.createElement('div');
-                    card.className = 'result-card';
-                    
-                    // Create card content
-                    let cardContent = `<div class="card-header">Match Found in ${sheetName}</div>`;
-                    cardContent += '<div class="card-body">';
-
-                    // Display ALL columns
-                    headers.forEach((header, index) => {
-                        const headerText = header || `Column ${index}`;
-                        const cellValue = row[index] || 'N/A';
-                        
-                        cardContent += `
-                            <div class="data-row">
-                                <span class="data-label">${headerText}:</span>
-                                <span class="data-value">${cellValue}</span>
-                            </div>
-                        `;
-                    });
-
-                    cardContent += '</div>';
-                    card.innerHTML = cardContent;
-                    resultsDiv.appendChild(card);
+                    createResultCard(row, headers, config, sheetName, resultsDiv);
+                    mapInputs(row, config);
                 }
             });
 
-            if (!found) {
-                document.getElementById('no-results').style.display = 'block';
+            if (!found) document.getElementById('no-results').style.display = 'block';
+        }
+
+        function createResultCard(row, headers, config, sheetName, container) {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            
+            let content = `<div class="card-header">${config.name || sheetName}</div>`;
+            
+            headers.forEach((header, index) => {
+                content += `
+                    <div class="data-row">
+                        <span class="data-label">${header}:</span>
+                        <span class="data-value">${row[index] || 'N/A'}</span>
+                    </div>
+                `;
+            });
+
+            card.innerHTML = content;
+            container.appendChild(card);
+        }
+
+        function mapInputs(row, config) {
+            if (config.inputMap) {
+                Object.entries(config.inputMap).forEach(([colIndex, inputId]) => {
+                    const inputField = document.getElementById(inputId);
+                    if (inputField) inputField.value = row[colIndex] || '';
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            resultsDiv.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
-        });
-    }
-// Keep the rest of the code (styles and togglePanel function) the same
+        }
+
+        function clearInputs(config) {
+            if (config.inputMap) {
+                Object.values(config.inputMap).forEach(inputId => {
+                    const field = document.getElementById(inputId);
+                    if (field) field.value = '';
+                });
+            }
+        }
 
 // Add styles for results
 const style = document.createElement('style');

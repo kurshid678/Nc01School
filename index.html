@@ -868,11 +868,6 @@ function searchSheet(event) {
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
 
-    // Get the appropriate mapping for the sheet
-    const currentMapping = sheetMappings[sheetIndex] || {};
-    const columnMap = currentMapping.columns || {};
-    const sheetDisplayName = currentMapping.name || `Sheet ${sheetIndex + 1}`;
-
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
@@ -902,20 +897,14 @@ function searchSheet(event) {
                     card.className = 'result-card';
                     
                     // Create card content
-                    let cardContent = `<div class="card-header">Match Found in ${sheetDisplayName}</div>`;
+                    let cardContent = `<div class="card-header">Match Found in ${sheetName}</div>`;
                     cardContent += '<div class="card-body">';
 
-                    // Add columns with headers and values using sheet-specific mapping
-                    Object.entries(columnMap).forEach(([colIndex, inputId]) => {
-                        const headerText = headers[colIndex] || `Column ${colIndex}`;
-                        const cellValue = row[colIndex] || 'N/A';
+                    // Display ALL columns
+                    headers.forEach((header, index) => {
+                        const headerText = header || `Column ${index}`;
+                        const cellValue = row[index] || 'N/A';
                         
-                        // Populate input fields
-                        const inputField = document.getElementById(inputId);
-                        if (inputField) {
-                            inputField.value = cellValue;
-                        }
-
                         cardContent += `
                             <div class="data-row">
                                 <span class="data-label">${headerText}:</span>
@@ -938,8 +927,7 @@ function searchSheet(event) {
             console.error('Error:', error);
             resultsDiv.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
         });
-}
-
+    }
 // Keep the rest of the code (styles and togglePanel function) the same
 
 // Add styles for results

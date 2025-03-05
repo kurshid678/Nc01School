@@ -800,129 +800,106 @@ font-weight: bold;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
-            // Mapping of column numbers to input field IDs
-        // Mapping of column numbers to input field IDs
+          // Sheet configurations with different column-to-input mappings
+const sheetConfigs = {
+    7: {  // Sheet index 7
+        name: "Personal Details",
+        columnMappings: {
+            2: "BirthdateInput",  // Column 2 → BirthdateInput
+            4: "CasteInput",      // Column 4 → CasteInput
+            5: "hInput"           // Column 5 → hInput
+        }
+    },
+    8: {  // Sheet index 8
+        name: "Academic Records",
+        columnMappings: {
+            1: "BirthdateInput",  // Column 1 → BirthdateInput (different column than sheet 7)
+            3: "CasteInput",      // Column 3 → CasteInput
+            6: "hInput"           // Column 6 → hInput
+        }
+    }
+};
 
-                    
-                    const sheetConfigs = {
-            0: { // First sheet (index 0)
-                name: "Student Records",
-                inputMap: {
-                        0: "AdmissionnoInput",
-    1: "StudentnameInput", 
-    2: "SatsInput", 
-    3: "GenderInput",
-    4: "BirthdateInput", 
-    6: "PlaceInput",
-    7: "NamefatherInput",
-    8: "NamemotherInput",
-    10: "CasteInput",
-    11: "hInput",
-    5: "Datebinword"
-                }
-            },
-            8: { // Ninth sheet (index 8)
-                name: "Academic Details",
-                inputMap: {
-                        0: "AdmissionnoInput",
-    1: "StudentnameInput", 
-    2: "SatsInput", 
-    3: "GenderInput",
-    4: "BirthdateInput", 
-    6: "PlaceInput",
-    7: "NamefatherInput",
-    8: "NamemotherInput",
-    10: "CasteInput",
-    11: "hInput",
-    5: "Datebinword"
-                }
-            }
-        };
+function searchSheet(event) {
+    const sheetIndex = parseInt(event.currentTarget.dataset.sheetIndex);
+    const config = sheetConfigs[sheetIndex] || {};
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
 
-        document.querySelectorAll('.search-btn').forEach(button => {
-            button.addEventListener('click', searchSheet);
+    fetch(`https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`)
+    .then(response => response.arrayBuffer())
+    .then(data => {
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[sheetIndex];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+        processData(jsonSheet, config, searchTerm, sheetName);
+    });
+}
+
+function processData(data, config, searchTerm, sheetName) {
+    const headers = data[0];
+    const rows = data.slice(1);
+    const resultsDiv = document.getElementById('results');
+    
+    resultsDiv.innerHTML = '';
+    document.getElementById('no-results').style.display = 'none';
+    clearInputs(config);
+
+    let found = false;
+
+    rows.forEach(row => {
+        if (row.some(cell => String(cell).toLowerCase().includes(searchTerm))) {
+            found = true;
+            createResultCard(row, headers, sheetName, resultsDiv);
+            mapInputs(row, config.columnMappings);
+        }
+    });
+
+    if (!found) document.getElementById('no-results').style.display = 'block';
+}
+
+function mapInputs(row, mappings) {
+    // Clear previous inputs first
+    Object.values(mappings).forEach(inputId => {
+        const inputField = document.getElementById(inputId);
+        if (inputField) inputField.value = '';
+    });
+
+    // Set new values
+    Object.entries(mappings).forEach(([colIndex, inputId]) => {
+        const inputField = document.getElementById(inputId);
+        if (inputField) inputField.value = row[colIndex] || '';
+    });
+}
+
+function createResultCard(row, headers, sheetName, container) {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    
+    let content = `<div class="card-header">${sheetName}</div>`;
+    
+    headers.forEach((header, index) => {
+        content += `
+            <div class="data-row">
+                <span class="data-label">${header}:</span>
+                <span class="data-value">${row[index] || 'N/A'}</span>
+            </div>
+        `;
+    });
+
+    card.innerHTML = content;
+    container.appendChild(card);
+}
+
+function clearInputs(config) {
+    if (config.columnMappings) {
+        Object.values(config.columnMappings).forEach(inputId => {
+            const field = document.getElementById(inputId);
+            if (field) field.value = '';
         });
-
-        function searchSheet(event) {
-            const sheetIndex = parseInt(event.currentTarget.dataset.sheetIndex);
-            const config = sheetConfigs[sheetIndex] || {};
-            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-            const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
-
-            fetch(`https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`)
-                .then(response => response.arrayBuffer())
-                .then(data => {
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[sheetIndex];
-                    const worksheet = workbook.Sheets[sheetName];
-                    const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
-
-                    processResults(jsonSheet, config, searchTerm, sheetName);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('results').innerHTML = 
-                        `<div class="error">Error loading data: ${error.message}</div>`;
-                });
-        }
-
-        function processResults(data, config, searchTerm, sheetName) {
-            const headers = data[0];
-            const rows = data.slice(1);
-            const resultsDiv = document.getElementById('results');
-            
-            resultsDiv.innerHTML = '';
-            document.getElementById('no-results').style.display = 'none';
-            clearInputs(config);
-
-            let found = false;
-
-            rows.forEach(row => {
-                if (row.some((cell, index) => String(cell).toLowerCase().includes(searchTerm))) {
-                    found = true;
-                    createResultCard(row, headers, config, sheetName, resultsDiv);
-                    mapInputs(row, config);
-                }
-            });
-
-            if (!found) document.getElementById('no-results').style.display = 'block';
-        }
-
-        function createResultCard(row, headers, config, sheetName, container) {
-            const card = document.createElement('div');
-            card.className = 'result-card';
-            
-            let content = `<div class="card-header">${config.name || sheetName}</div>`;
-            
-            headers.forEach((header, index) => {
-                content += `
-                    <div class="data-row">
-                        <span class="data-label">${header}:</span>
-                        <span class="data-value">${row[index] || 'N/A'}</span>
-                    </div>
-                `;
-            });
-
-            card.innerHTML = content;
-            container.appendChild(card);
-        }
-
-        function mapInputs(row, config) {
-            if (config.inputMap) {
-                Object.entries(config.inputMap).forEach(([colIndex, inputId]) => {
-                    const inputField = document.getElementById(inputId);
-                    if (inputField) inputField.value = row[colIndex] || '';
-                });
-            }
-        }
-
-        function clearInputs(config) {
-            if (config.inputMap) {
-                Object.values(config.inputMap).forEach(inputId => {
-                    const field = document.getElementById(inputId);
-                    if (field) field.value = '';
-                });
-            }
+    }
         }
 
 // Add styles for results

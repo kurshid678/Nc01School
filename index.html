@@ -805,26 +805,37 @@ font-weight: bold;
 // Define different column mappings for different sheets
 const sheetMappings = {
     // Mapping for Sheet 1 (index 0)
-    0: {
+    6: {
         name: "Student Information",
         columns: {
             0: "AdmissionnoInput",
-            1: "StudentnameInput",
-            2: "SatsInput",
-            3: "GenderInput",
-            4: "BirthdateInput",
-            5: "Datebinword"
+    1: "StudentnameInput", 
+    2: "SatsInput", 
+    3: "GenderInput",
+    4: "BirthdateInput", 
+    6: "PlaceInput",
+    7: "NamefatherInput",
+    8: "NamemotherInput",
+    10: "CasteInput",
+    11: "hInput",
+    5: "Datebinword"
         }
     },
     // Mapping for Sheet 3 (index 2)
-    2: {
+    7: {
         name: "Parent Details",
         columns: {
-            0: "ParentIDInput",
-            1: "FatherNameInput",
-            2: "MotherNameInput",
-            3: "ContactInput",
-            4: "AddressInput"
+            0: "AdmissionnoInput",
+    1: "StudentnameInput", 
+    2: "SatsInput", 
+    3: "GenderInput",
+    4: "BirthdateInput", 
+    6: "PlaceInput",
+    7: "NamefatherInput",
+    8: "NamemotherInput",
+    10: "CasteInput",
+    11: "hInput",
+    5: "Datebinword"
         }
     },
     // Mapping for Sheet 9 (index 8)
@@ -940,6 +951,7 @@ style.textContent = `
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         margin: 1rem 0;
         padding: 1.5rem;
+        
     }
     
     .card-header {

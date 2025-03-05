@@ -364,7 +364,7 @@ font-weight: bold;
             font-size: 16px;
         }
 
-        #search-btn3 {
+        .buta {
             padding: 10px 20px;
             margin-left: 10px;
             background-color: #007bff;
@@ -375,7 +375,7 @@ font-weight: bold;
             font-size: 16px;
         }
 
-        #search-btn3:hover {
+        .buta:hover {
             background-color: #0056b3;
         }
 
@@ -586,7 +586,12 @@ font-weight: bold;
     <!-- Search Bar and Button -->
     <div id="search-container">
         <input type="text" id="search-bar" placeholder="Search by ID...">
-        <button id="search-btn3">Search</button>
+        <button  class"buta" id="search-btn3">Register8</button>
+        <button class"buta" id="search-btna">Register7</button>
+        <button class"buta" id="search-btnb">Register6</button>
+        <button class"buta" id="search-btnc">Register5/2</button>
+        <button  class"buta" id="search-btnd">Register5/1</button>
+          <button  class"buta" id="search-btne">Register4</button>
           
     </div>
 
@@ -842,6 +847,62 @@ font-weight: bold;
                 
                 if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
                     // Rest of your code remains the same
+                    for (const [columnIndex, inputId
+                               ] of Object.entries(columnToInputMap)) {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) {
+                            inputField.value = row[columnIndex] || '';
+                        }
+                    }
+
+                    const card = document.createElement('div');
+        <script>
+        document.getElementById('search-btn3').addEventListener('click', searchSheet);
+
+        // Mapping of column numbers to input field IDs
+        const columnToInputMap = {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput", 
+            2: "SatsInput", 
+            3: "GenderInput",
+            4:"BirthdateInput", 
+            6:"PlaceInput",
+            7:"NamefatherInput",
+            8:"NamemotherInput",
+            10:"CasteInput",
+            11:"hInput",
+            5:"Datebinword",
+        };
+
+       function searchSheet() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[8];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
+            let found = false;
+
+            dataRows.forEach(row => {
+                // Check only first and second columns (index 0 and 1)
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Rest of your code remains the same
                     for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
                         const inputField = document.getElementById(inputId);
                         if (inputField) {
@@ -850,7 +911,7 @@ font-weight: bold;
                     }
 
                     const card = document.createElement('div');
-                    card.className = 'card';
+                     card.className = 'card';
 
                     headers.forEach((header, index) => {
                         const p = document.createElement('p');
@@ -1364,6 +1425,391 @@ window.onload = setTodayDate;
 
 
 </script>
+            <script>
+        document.getElementById('search-btna').addEventListener('click', searchSheet);
 
+        // Mapping of column numbers to input field IDs
+        const columnToInputMap = {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput", 
+            2: "SatsInput", 
+            3: "GenderInput",
+            4:"BirthdateInput", 
+            6:"PlaceInput",
+            7:"NamefatherInput",
+            8:"NamemotherInput",
+            10:"CasteInput",
+            11:"hInput",
+            5:"Datebinword",
+        };
+
+       function searchSheet() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[7];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
+            let found = false;
+
+            dataRows.forEach(row => {
+                // Check only first and second columns (index 0 and 1)
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Rest of your code remains the same
+                    for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) {
+                            inputField.value = row[columnIndex] || '';
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                     card.className = 'card';
+
+                    headers.forEach((header, index) => {
+                        const p = document.createElement('p');
+                        p.innerHTML = `<strong>${header}:</strong> ${row[index] || ''}`;
+                        card.appendChild(p);
+                    });
+
+                    resultsDiv.appendChild(card);
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                document.getElementById('no-results').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+        
+    </script>     
+    
+        <script>
+        document.getElementById('search-btnb').addEventListener('click', searchSheet);
+
+        // Mapping of column numbers to input field IDs
+        const columnToInputMap = {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput", 
+            2: "SatsInput", 
+            3: "GenderInput",
+            4:"BirthdateInput", 
+            6:"PlaceInput",
+            7:"NamefatherInput",
+            8:"NamemotherInput",
+            10:"CasteInput",
+            11:"hInput",
+            5:"Datebinword",
+        };
+
+       function searchSheet() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[6];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
+            let found = false;
+
+            dataRows.forEach(row => {
+                // Check only first and second columns (index 0 and 1)
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Rest of your code remains the same
+                    for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) {
+                            inputField.value = row[columnIndex] || '';
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                     card.className = 'card';
+
+                    headers.forEach((header, index) => {
+                        const p = document.createElement('p');
+                        p.innerHTML = `<strong>${header}:</strong> ${row[index] || ''}`;
+                        card.appendChild(p);
+                    });
+
+                    resultsDiv.appendChild(card);
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                document.getElementById('no-results').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+        </script>
+
+
+        <script>
+        document.getElementById('search-btnc').addEventListener('click', searchSheet);
+
+        // Mapping of column numbers to input field IDs
+        const columnToInputMap = {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput", 
+            2: "SatsInput", 
+            3: "GenderInput",
+            4:"BirthdateInput", 
+            6:"PlaceInput",
+            7:"NamefatherInput",
+            8:"NamemotherInput",
+            10:"CasteInput",
+            11:"hInput",
+            5:"Datebinword",
+        };
+
+       function searchSheet() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[5];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
+            let found = false;
+
+            dataRows.forEach(row => {
+                // Check only first and second columns (index 0 and 1)
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Rest of your code remains the same
+                    for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) {
+                            inputField.value = row[columnIndex] || '';
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                     card.className = 'card';
+
+                    headers.forEach((header, index) => {
+                        const p = document.createElement('p');
+                        p.innerHTML = `<strong>${header}:</strong> ${row[index] || ''}`;
+                        card.appendChild(p);
+                    });
+
+                    resultsDiv.appendChild(card);
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                document.getElementById('no-results').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+ }
+
+        </script>
+
+        <script>
+        document.getElementById('search-btnd').addEventListener('click', searchSheet);
+
+        // Mapping of column numbers to input field IDs
+        const columnToInputMap = {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput", 
+            2: "SatsInput", 
+            3: "GenderInput",
+            4:"BirthdateInput", 
+            6:"PlaceInput",
+            7:"NamefatherInput",
+            8:"NamemotherInput",
+            10:"CasteInput",
+            11:"hInput",
+            5:"Datebinword",
+        };
+
+       function searchSheet() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[4];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
+            let found = false;
+
+            dataRows.forEach(row => {
+                // Check only first and second columns (index 0 and 1)
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Rest of your code remains the same
+                    for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) {
+                            inputField.value = row[columnIndex] || '';
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                     card.className = 'card';
+
+                    headers.forEach((header, index) => {
+                        const p = document.createElement('p');
+                        p.innerHTML = `<strong>${header}:</strong> ${row[index] || ''}`;
+                        card.appendChild(p);
+                    });
+
+                    resultsDiv.appendChild(card);
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                document.getElementById('no-results').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+        </script>
+
+        <script>
+        document.getElementById('search-btne').addEventListener('click', searchSheet);
+
+        // Mapping of column numbers to input field IDs
+        const columnToInputMap = {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput", 
+            2: "SatsInput", 
+            3: "GenderInput",
+            4:"BirthdateInput", 
+            6:"PlaceInput",
+            7:"NamefatherInput",
+            8:"NamemotherInput",
+            10:"CasteInput",
+            11:"hInput",
+            5:"Datebinword",
+        };
+
+       function searchSheet() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[3];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
+            let found = false;
+
+            dataRows.forEach(row => {
+                // Check only first and second columns (index 0 and 1)
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Rest of your code remains the same
+                    for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) {
+                            inputField.value = row[columnIndex] || '';
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                     card.className = 'card';
+
+                    headers.forEach((header, index) => {
+                        const p = document.createElement('p');
+                        p.innerHTML = `<strong>${header}:</strong> ${row[index] || ''}`;
+                        card.appendChild(p);
+                    });
+
+                    resultsDiv.appendChild(card);
+                    found = true;
+                }
+            });
+
+            if (!found) {
+                document.getElementById('no-results').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+        </script> 
+            
+    
 </body>
 </html>

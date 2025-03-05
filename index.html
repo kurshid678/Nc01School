@@ -599,7 +599,7 @@ font-weight: bold;
   
  <div class="sliding-panel" id="slidingPanel">
           <button class="close-panel-btn" onclick="togglePanel()">&times;</button>
-        <div id="results"></div>
+        <div class="results" id="results"></div>
     </div>
 
     <!-- No Results Message -->
@@ -800,87 +800,146 @@ font-weight: bold;
    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
             // Mapping of column numbers to input field IDs
-        const columnToInputMap = {
-            0: "AdmissionnoInput",
-            1: "StudentnameInput",
-            2: "SatsInput",
-            3: "GenderInput",
-            4: "BirthdateInput",
-            5: "Datebinword",
-            6: "PlaceInput",
-            7: "NamefatherInput",
-            8: "NamemotherInput",
-            10: "CasteInput",
-            11: "hInput"
-        };
+        // Mapping of column numbers to input field IDs
+const columnToInputMap = {
+    0: "AdmissionnoInput",
+    1: "StudentnameInput", 
+    2: "SatsInput", 
+    3: "GenderInput",
+    4: "BirthdateInput", 
+    6: "PlaceInput",
+    7: "NamefatherInput",
+    8: "NamemotherInput",
+    10: "CasteInput",
+    11: "hInput",
+    5: "Datebinword"
+};
 
-        // Add event listeners to all search buttons
-        document.querySelectorAll('.search-btn').forEach(button => {
-            button.addEventListener('click', searchSheet);
-        });
+// Add event listeners to all search buttons
+document.querySelectorAll('.search-btn').forEach(button => {
+    button.addEventListener('click', searchSheet);
+});
 
-        // Search Function
-        function searchSheet(event) {
-            const sheetIndex = parseInt(event.currentTarget.dataset.sheetIndex); // Get sheet index from button
-            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-            const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
-            const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+function searchSheet(event) {
+    const sheetIndex = parseInt(event.currentTarget.dataset.sheetIndex);
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
 
-            fetch(xlsxUrl)
-                .then(response => response.arrayBuffer())
-                .then(data => {
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[sheetIndex]; // Use dynamic sheet index
-                    const worksheet = workbook.Sheets[sheetName];
-                    const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[sheetIndex];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
-                    const headers = jsonSheet[0];
-                    const dataRows = jsonSheet.slice(1);
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
 
-                    const resultsDiv = document.getElementById('results');
-                    resultsDiv.innerHTML = '';
-                    document.getElementById('no-results').style.display = 'none';
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
 
-                    let found = false;
+            let found = false;
 
-                    dataRows.forEach(row => {
-                        // Check only first and second columns (index 0 and 1)
-                        const firstCol = String(row[0] || '').toLowerCase();
-                        const secondCol = String(row[1] || '').toLowerCase();
+            dataRows.forEach(row => {
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    found = true;
 
-                        if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
-                            found = true;
+                    // Create result card
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    
+                    // Create card content
+                    let cardContent = `<div class="card-header">Match Found in ${sheetName}</div>`;
+                    cardContent += '<div class="card-body">';
 
-                            // Populate input fields
-                            for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
-                                const inputField = document.getElementById(inputId);
-                                if (inputField) {
-                                    inputField.value = row[columnIndex] || '';
-                                }
-                            }
-
-                            // Create a result card
-                            const card = document.createElement('div');
-                            card.innerHTML = `<strong>${row[0]}</strong> - ${row[1]}`;
-                            resultsDiv.appendChild(card);
-                        }
+                    // Add columns with headers and values
+                    Object.entries(columnToInputMap).forEach(([colIndex, inputId]) => {
+                        const headerText = headers[colIndex] || `Column ${colIndex}`;
+                        const cellValue = row[colIndex] || 'N/A';
+                        
+                        cardContent += `
+                            <div class="data-row">
+                                <span class="data-label">${headerText}:</span>
+                                <span class="data-value">${cellValue}</span>
+                            </div>
+                        `;
                     });
 
-                    if (!found) {
-                        document.getElementById('no-results').style.display = 'block';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching or processing the sheet:', error);
-                });
-        }
+                    cardContent += '</div>';
+                    card.innerHTML = cardContent;
+                    resultsDiv.appendChild(card);
+                }
+            });
 
-        // Toggle Sliding Panel
-        function togglePanel() {
-            const panel = document.getElementById('slidingPanel');
-            panel.classList.toggle('open');
+            if (!found) {
+                document.getElementById('no-results').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultsDiv.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
+        });
+}
+
+// Add styles for results
+const style = document.createElement('style');
+style.textContent = `
+    .result-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 1rem 0;
+        padding: 1.5rem;
     }
+    
+    .card-header {
+        color: #2c3e50;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #ecf0f1;
+        padding-bottom: 0.5rem;
+    }
+    
+    .data-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 0.5rem 0;
+        padding: 0.3rem 0;
+    }
+    
+    .data-label {
+        font-weight: 600;
+        color: #34495e;
+        flex: 1;
+    }
+    
+    .data-value {
+        color: #7f8c8d;
+        flex: 2;
+        text-align: right;
+    }
+    
+    .error {
+        color: #e74c3c;
+        padding: 1rem;
+        background: #f8d7da;
+        border-radius: 4px;
+    }
+`;
+document.head.appendChild(style);
 
+// Toggle panel function
+function togglePanel() {
+    const panel = document.getElementById('slidingPanel');
+    panel.classList.toggle('open');
+        }
  
     </script>
 

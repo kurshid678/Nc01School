@@ -613,9 +613,9 @@ font-weight: bold;
     <!-- Search Bar and Button -->
     <div id="search-container">
         <input type="text" id="search-bar" placeholder="Search by ID...">
-        <button   data-sheet-index="8" id="search-btn3">Register8</button>
-        <button   data-sheet-index="7" id="search-btna">Register7</button>
-        <button   data-sheet-index="6" id="search-btnb">Register6</button>
+        <button   class="search-btn" id="search-btn3">Register8</button>
+        <button   class="search-btn" id="search-btna">Register7</button>
+        <button   class="search-btn" id="search-btnb">Register6</button>
         
           
     </div>
@@ -826,53 +826,23 @@ font-weight: bold;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
-          // Sheet configurations with different column-to-input mappings
-// Configuration for each search button
-const buttonConfigs = {
-    'search-btn3': {
-        sheetIndex: 0,
-        inputMap: {
-            0: "AdmissionnoInput",
-            1: "StudentnameInput"
-        },
-        displayMap: [
-            { column: 2, label: "SAT Score" },
-            { column: 3, label: "Gender" }
-        ]
-    },
-    'search-btna': {
-        sheetIndex: 1,
-        inputMap: {
-            4: "BirthdateInput",
-            6: "PlaceInput"
-        },
-        displayMap: [
-            { column: 7, label: "Father's Name" },
-            { column: 8, label: "Mother's Name" }
-        ]
-    },
-    'search-btnb': {
-        sheetIndex: 8,
-        inputMap: {
-            0: "AdmissionnoInput",
-            1: "StudentnameInput",
-            5: "Datebinword"
-        },
-        displayMap: [
-            { column: 10, label: "Caste" },
-            { column: 11, label: "Home Town" }
-        ]
-    }
+          document.getElementById('search-btn3').addEventListener('click', searchSheet);
+
+const columnToInputMap = {
+    0: "AdmissionnoInput",
+    1: "StudentnameInput",
+    2: "SatsInput",
+    3: "GenderInput",
+    4: "BirthdateInput",
+    5: "Datebinword",
+    6: "PlaceInput",
+    7: "NamefatherInput",
+    8: "NamemotherInput",
+    10: "CasteInput",
+    11: "hInput",
 };
 
-// Set up event listeners for all configured buttons
-Object.keys(buttonConfigs).forEach(buttonId => {
-    document.getElementById(buttonId).addEventListener('click', function() {
-        searchSheet(buttonConfigs[buttonId]);
-    });
-});
-
-function searchSheet(config) {
+function searchSheet() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
@@ -881,34 +851,40 @@ function searchSheet(config) {
         .then(response => response.arrayBuffer())
         .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[config.sheetIndex];
-            const worksheet = workbook.Sheets[sheetName];
+            const firstSheetName = workbook.SheetNames[8];
+            const worksheet = workbook.Sheets[firstSheetName];
             const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
             document.getElementById('no-results').style.display = 'none';
+
             let found = false;
 
-            jsonSheet.slice(1).forEach(row => {
+            dataRows.forEach(row => {
                 const firstCol = String(row[0] || '').toLowerCase();
                 const secondCol = String(row[1] || '').toLowerCase();
-                
-                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
-                    // Update input fields
-                    Object.entries(config.inputMap).forEach(([colIndex, elementId]) => {
-                        updateElement(elementId, row[colIndex]);
-                    });
 
-                    // Create result card
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Populate input fields
+                    for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) inputField.value = row[columnIndex] || '';
+                    }
+
+                    // Create result card with all columns
                     const card = document.createElement('div');
                     card.className = 'result-card';
-                    config.displayMap.forEach(({ column, label }) => {
-                        const field = document.createElement('div');
-                        field.className = 'result-field';
-                        field.innerHTML = `<strong>${label}:</strong> ${row[column] || 'N/A'}`;
-                        card.appendChild(field);
+                    let cardContent = `<h3>Student Found: ${row[1] || 'N/A'}</h3>`;
+                    
+                    headers.forEach((header, index) => {
+                        const value = row[index] || 'N/A';
+                        cardContent += `<p><strong>${header}:</strong> ${value}</p>`;
                     });
+
+                    card.innerHTML = cardContent;
                     resultsDiv.appendChild(card);
                     found = true;
                 }
@@ -918,19 +894,11 @@ function searchSheet(config) {
                 document.getElementById('no-results').style.display = 'block';
             }
         })
-        .catch(error => console.error('Error:', error));
-}
-
-function updateElement(elementId, value) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-        element.value = value || '';
-    } else {
-        element.textContent = value || '';
-    }
-}
+        .catch(error => {
+            console.error('Error:', error);
+            resultsDiv.innerHTML = 'Error loading data';
+        });
+        }
 
 // Toggle panel function remains the same
 function togglePanel() {

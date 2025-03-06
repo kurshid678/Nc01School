@@ -827,6 +827,7 @@ font-weight: bold;
    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
           // First search button and mapping
+// First search button and mapping
 document.getElementById('search-btn3').addEventListener('click', searchSheet1);
 
 const columnMap1 = {
@@ -864,7 +865,7 @@ function searchSheet1() {
             let found = false;
 
             dataRows.forEach(row => {
-                if (String(row[0] || '').toLowerCase().includes(searchTerm) {
+                if (String(row[0] || '').toLowerCase().includes(searchTerm)) { // Fixed line
                     // Populate inputs based on columnMap1
                     Object.entries(columnMap1).forEach(([colIndex, inputId]) => {
                         const inputField = document.getElementById(inputId);
@@ -887,8 +888,11 @@ function searchSheet1() {
 
             if (!found) document.getElementById('no-results').style.display = 'block';
         })
-        .catch(console.error);
-                           }
+        .catch(error => {
+            console.error('Error fetching or processing data:', error);
+        });
+}
+                           
 // Toggle panel function remains the same
 function togglePanel() {
     const panel = document.getElementById('slidingPanel');

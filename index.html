@@ -614,7 +614,7 @@ font-weight: bold;
     <div id="search-container">
         <input type="text" id="search-bar" placeholder="Search by ID...">
         <button   class="search-btn" id="search-btn3">Register8</button>
-        <button   class="search-btn" id="search-btna">Register7</button>
+        <button   class="search-btn" id="search-btn4">Register7</button>
         <button   class="search-btn" id="search-btnb">Register6</button>
         
           
@@ -899,40 +899,36 @@ function togglePanel() {
     panel.classList.toggle('open');
         }
 
-document.getElementById('search-btna').addEventListener('click', searchSheet2);
 
-const columnMap2 = {
-    2: "AdmissionnoInput",
-    3: "StudentnameInput",
-    4: "SatsInput",
-    5: "GenderInput",
-    6: "BirthdateInput",
-    7: "Datebinword",
-    8: "PlaceInput",
-    9: "NamefatherInput",
-    10: "NamemotherInput",
-    11: "CasteInput",
-    12: "hInput",
+    </script>
+    <script>
+// Second search button and mapping
+document.getElementById('search-btn4').addEventListener('click', searchSheet2);
+
+const columnMap2 = { // Keep the same mapping unless you want different fields
+    0: "AdmissionnoInput",
+    1: "StudentnameInput",
+    2: "SatsInput",
+    3: "GenderInput",
+    4: "BirthdateInput",
+    5: "Datebinword",
+    6: "PlaceInput",
+    7: "NamefatherInput",
+    8: "NamemotherInput",
+    10: "CasteInput",
+    11: "hInput",
 };
 
 function searchSheet2() {
-    const searchTerm = document.getElementById('search-bar').value.trim().toLowerCase();
-    if (!searchTerm) {
-        alert('Please enter a search term.');
-        return;
-    }
-
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
 
     fetch(xlsxUrl)
-        .then(response => {
-            if (!response.ok) throw new Error('Network error');
-            return response.arrayBuffer();
-        })
+        .then(response => response.arrayBuffer())
         .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
-            const worksheet = workbook.Sheets[workbook.SheetNames[7]]; // Check sheet index
+            const worksheet = workbook.Sheets[workbook.SheetNames[7]]; // Changed to index 7
             const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
             const headers = jsonSheet[0];
@@ -941,48 +937,45 @@ function searchSheet2() {
             resultsDiv.innerHTML = '';
             document.getElementById('no-results').style.display = 'none';
 
-            // Clear all input fields initially
-            Object.values(columnMap2).forEach(inputId => {
-                const inputField = document.getElementById(inputId);
-                if (inputField) inputField.value = '';
+            let found = false;
+
+            dataRows.forEach(row => {
+                if (String(row[0] || '').toLowerCase().includes(searchTerm)) {
+                    // Populate inputs
+                    Object.entries(columnMap2).forEach(([colIndex, inputId]) => {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) inputField.value = row[colIndex] || '';
+                    });
+
+                    // Display results
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <h3>Student Found: ${row[1] || 'N/A'}</h3>
+                        ${headers.map((header, i) => `
+                            <p><strong>${header}:</strong> ${row[i] || 'N/A'}</p>
+                        `).join('')}
+                    `;
+                    resultsDiv.appendChild(card);
+                    found = true;
+                }
             });
 
-            const matches = dataRows.filter(row => 
-                String(row[2] || '').toLowerCase().includes(searchTerm)
-            );
-
-            if (matches.length === 0) {
-                document.getElementById('no-results').style.display = 'block';
-                return;
-            }
-
-            // Populate inputs with the first match
-            const firstMatch = matches[0];
-            Object.entries(columnMap2).forEach(([colIndex, inputId]) => {
-                const inputField = document.getElementById(inputId);
-                if (inputField) inputField.value = firstMatch[colIndex] || '';
-            });
-
-            // Display all matches
-            matches.forEach(row => {
-                const card = document.createElement('div');
-                card.className = 'result-card';
-                card.innerHTML = `
-                    <h3>Student Found: ${row[3] || 'N/A'}</h3>
-                    ${headers.map((header, i) => `
-                        <p><strong>${header}:</strong> ${row[i] || 'N/A'}</p>
-                    `).join('')}
-                `;
-                resultsDiv.appendChild(card);
-            });
+            if (!found) document.getElementById('no-results').style.display = 'block';
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to fetch data. Please try again.');
+            console.error('Error fetching or processing data:', error);
         });
+}
+
+function togglePanel() {
+    const panel = document.getElementById('slidingPanel');
+    panel.classList.toggle('open');
         }
-    
+
     </script>
+
+        
 
     <script>
         const state = {

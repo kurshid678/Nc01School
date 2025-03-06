@@ -826,23 +826,24 @@ font-weight: bold;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
-          document.getElementById('search-btn3').addEventListener('click', searchSheet);
+          // First search button and mapping
+document.getElementById('search-btn3').addEventListener('click', searchSheet1);
 
-const columnToInputMap = {
-    0: "AdmissionnoInput",
-    1: "StudentnameInput",
-    2: "SatsInput",
-    3: "GenderInput",
-    4: "BirthdateInput",
-    5: "Datebinword",
-    6: "PlaceInput",
-    7: "NamefatherInput",
-    8: "NamemotherInput",
-    10: "CasteInput",
-    11: "hInput",
+const columnMap1 = {
+    0: "AdmissionnoInput",  // Column 0 maps to AdmissionnoInput
+    1: "StudentnameInput",  // Column 1 maps to StudentnameInput
+    2: "SatsInput",         // Column 2 maps to SatsInput
+    3: "GenderInput",       // Column 3 maps to GenderInput
+    4: "BirthdateInput",    // Column 4 maps to BirthdateInput
+    5: "Datebinword",       // Column 5 maps to Datebinword
+    6: "PlaceInput",        // Column 6 maps to PlaceInput
+    7: "NamefatherInput",   // Column 7 maps to NamefatherInput
+    8: "NamemotherInput",   // Column 8 maps to NamemotherInput
+    10: "CasteInput",       // Column 10 maps to CasteInput
+    11: "hInput",           // Column 11 maps to hInput
 };
 
-function searchSheet() {
+function searchSheet1() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
@@ -851,8 +852,7 @@ function searchSheet() {
         .then(response => response.arrayBuffer())
         .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[8];
-            const worksheet = workbook.Sheets[firstSheetName];
+            const worksheet = workbook.Sheets[workbook.SheetNames[8]];
             const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
             const headers = jsonSheet[0];
@@ -864,42 +864,31 @@ function searchSheet() {
             let found = false;
 
             dataRows.forEach(row => {
-                const firstCol = String(row[0] || '').toLowerCase();
-                const secondCol = String(row[1] || '').toLowerCase();
-
-                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
-                    // Populate input fields
-                    for (const [columnIndex, inputId] of Object.entries(columnToInputMap)) {
+                if (String(row[0] || '').toLowerCase().includes(searchTerm) {
+                    // Populate inputs based on columnMap1
+                    Object.entries(columnMap1).forEach(([colIndex, inputId]) => {
                         const inputField = document.getElementById(inputId);
-                        if (inputField) inputField.value = row[columnIndex] || '';
-                    }
-
-                    // Create result card with all columns
-                    const card = document.createElement('div');
-                    card.className = 'result-card';
-                    let cardContent = `<h3>Student Found: ${row[1] || 'N/A'}</h3>`;
-                    
-                    headers.forEach((header, index) => {
-                        const value = row[index] || 'N/A';
-                        cardContent += `<p><strong>${header}:</strong> ${value}</p>`;
+                        if (inputField) inputField.value = row[colIndex] || '';
                     });
 
-                    card.innerHTML = cardContent;
+                    // Display results
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <h3>Student Found: ${row[1] || 'N/A'}</h3>
+                        ${headers.map((header, i) => `
+                            <p><strong>${header}:</strong> ${row[i] || 'N/A'}</p>
+                        `).join('')}
+                    `;
                     resultsDiv.appendChild(card);
                     found = true;
                 }
             });
 
-            if (!found) {
-                document.getElementById('no-results').style.display = 'block';
-            }
+            if (!found) document.getElementById('no-results').style.display = 'block';
         })
-        .catch(error => {
-            console.error('Error:', error);
-            resultsDiv.innerHTML = 'Error loading data';
-        });
-        }
-
+        .catch(console.error);
+                           }
 // Toggle panel function remains the same
 function togglePanel() {
     const panel = document.getElementById('slidingPanel');

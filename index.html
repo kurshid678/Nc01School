@@ -801,140 +801,117 @@ font-weight: bold;
    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
           // Sheet configurations with different column-to-input mappings
+// Configuration for each search button
+const buttonConfigs = {
+    'search-btn3': {
+        sheetIndex: 0,
+        inputMap: {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput"
+        },
+        displayMap: [
+            { column: 2, label: "SAT Score" },
+            { column: 3, label: "Gender" }
+        ]
+    },
+    'search-btna': {
+        sheetIndex: 1,
+        inputMap: {
+            4: "BirthdateInput",
+            6: "PlaceInput"
+        },
+        displayMap: [
+            { column: 7, label: "Father's Name" },
+            { column: 8, label: "Mother's Name" }
+        ]
+    },
+    'search-btnb': {
+        sheetIndex: 8,
+        inputMap: {
+            0: "AdmissionnoInput",
+            1: "StudentnameInput",
+            5: "Datebinword"
+        },
+        displayMap: [
+            { column: 10, label: "Caste" },
+            { column: 11, label: "Home Town" }
+        ]
+    }
+};
 
-        const SHEET_ID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
-        const SHEET_CONFIG = {
-            7: {
-                displayName: "Personal Details",
-                inputMap: {
-                    2: "BirthdateInput",  // Column 2 → BirthdateInput
-                    4: "CasteInput",      // Column 4 → CasteInput
-                    5: "hInput"           // Column 5 → hInput
-                }
-            },
-            8: {
-                displayName: "Academic Records",
-                inputMap: {
-                    1: "BirthdateInput",  // Column 1 → BirthdateInput
-                    3: "CasteInput",      // Column 3 → CasteInput
-                    6: "hInput"           // Column 6 → hInput
-                }
-            }
-        };
+// Set up event listeners for all configured buttons
+Object.keys(buttonConfigs).forEach(buttonId => {
+    document.getElementById(buttonId).addEventListener('click', function() {
+        searchSheet(buttonConfigs[buttonId]);
+    });
+});
 
-        // Event Listeners
-        document.querySelectorAll('.sheet-btn').forEach(button => {
-            button.addEventListener('click', handleSheetSearch);
-        });
+function searchSheet(config) {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
 
-        async function handleSheetSearch(event) {
-            const sheetIndex = parseInt(event.target.dataset.sheet);
-            const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-            
-            try {
-                const { headers, rows, sheetName } = await fetchSheetData(sheetIndex);
-                clearPreviousResults();
-                clearMappedInputs(sheetIndex);
-                
-                const matches = findMatches(rows, searchTerm);
-                
-                if (matches.length > 0) {
-                    displayResults(matches, headers, sheetIndex, sheetName);
-                    updateInputFields(matches[0], sheetIndex); // Use first match for inputs
-                } else {
-                    showNoResults();
-                }
-            } catch (error) {
-                console.error('Search failed:', error);
-                displayError(error.message);
-            }
-        }
-
-        async function fetchSheetData(sheetIndex) {
-            const response = await fetch(
-                `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=xlsx`
-            );
-            const data = await response.arrayBuffer();
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
-            
-            if (!workbook.SheetNames[sheetIndex]) {
-                throw new Error(`Sheet index ${sheetIndex} not found`);
-            }
-
-            const sheetName = workbook.SheetNames[sheetIndex];
+            const sheetName = workbook.SheetNames[config.sheetIndex];
             const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
-            
-            return {
-                headers: jsonData[0] || [],
-                rows: jsonData.slice(1),
-                sheetName
-            };
-        }
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
-        function findMatches(rows, searchTerm) {
-            return rows.filter(row => 
-                row.some(cell => 
-                    String(cell).toLowerCase().includes(searchTerm)
-                );
-        }
-
-        function displayResults(matches, headers, sheetIndex, sheetName) {
             const resultsDiv = document.getElementById('results');
-            const config = SHEET_CONFIG[sheetIndex] || {};
-            
-            matches.forEach(row => {
-                const card = document.createElement('div');
-                card.className = 'result-card';
-                card.innerHTML = `
-                    <h3>${config.displayName || sheetName}</h3>
-                    ${headers.map((header, index) => `
-                        <div class="data-row">
-                            <span class="data-label">${header}:</span>
-                            <span>${row[index] || 'N/A'}</span>
-                        </div>
-                    `).join('')}
-                `;
-                resultsDiv.appendChild(card);
-            });
-        }
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+            let found = false;
 
-        function updateInputFields(rowData, sheetIndex) {
-            const config = SHEET_CONFIG[sheetIndex];
-            if (!config?.inputMap) return;
+            jsonSheet.slice(1).forEach(row => {
+                const firstCol = String(row[0] || '').toLowerCase();
+                const secondCol = String(row[1] || '').toLowerCase();
+                
+                if (firstCol.includes(searchTerm) || secondCol.includes(searchTerm)) {
+                    // Update input fields
+                    Object.entries(config.inputMap).forEach(([colIndex, elementId]) => {
+                        updateElement(elementId, row[colIndex]);
+                    });
 
-            Object.entries(config.inputMap).forEach(([colIndex, inputId]) => {
-                const inputField = document.getElementById(inputId);
-                if (inputField) {
-                    inputField.value = rowData[parseInt(colIndex)] || '';
+                    // Create result card
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    config.displayMap.forEach(({ column, label }) => {
+                        const field = document.createElement('div');
+                        field.className = 'result-field';
+                        field.innerHTML = `<strong>${label}:</strong> ${row[column] || 'N/A'}`;
+                        card.appendChild(field);
+                    });
+                    resultsDiv.appendChild(card);
+                    found = true;
                 }
             });
+
+            if (!found) {
+                document.getElementById('no-results').style.display = 'block';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function updateElement(elementId, value) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+        element.value = value || '';
+    } else {
+        element.textContent = value || '';
+    }
+}
+
+// Toggle panel function remains the same
+function togglePanel() {
+    const panel = document.getElementById('slidingPanel');
+    panel.classList.toggle('open');
         }
 
-        function clearMappedInputs(sheetIndex) {
-            const config = SHEET_CONFIG[sheetIndex];
-            if (!config?.inputMap) return;
-
-            Object.values(config.inputMap).forEach(inputId => {
-                const field = document.getElementById(inputId);
-                if (field) field.value = '';
-            });
-        }
-
-        function clearPreviousResults() {
-            document.getElementById('results').innerHTML = '';
-            document.getElementById('no-results').style.display = 'none';
-        }
-
-        function showNoResults() {
-            document.getElementById('no-results').style.display = 'block';
-        }
-
-        function displayError(message) {
-            document.getElementById('results').innerHTML = `
-                <div class="error">Error: ${message}</div>
-            `;
-        }
     </script>
 
     <script>

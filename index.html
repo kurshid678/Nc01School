@@ -899,6 +899,89 @@ function togglePanel() {
     panel.classList.toggle('open');
         }
 
+document.getElementById('search-btna').addEventListener('click', searchSheet2);
+
+const columnMap2 = {
+    2: "AdmissionnoInput",
+    3: "StudentnameInput",
+    4: "SatsInput",
+    5: "GenderInput",
+    6: "BirthdateInput",
+    7: "Datebinword",
+    8: "PlaceInput",
+    9: "NamefatherInput",
+    10: "NamemotherInput",
+    11: "CasteInput",
+    12: "hInput",
+};
+
+function searchSheet2() {
+    const searchTerm = document.getElementById('search-bar').value.trim().toLowerCase();
+    if (!searchTerm) {
+        alert('Please enter a search term.');
+        return;
+    }
+
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    fetch(xlsxUrl)
+        .then(response => {
+            if (!response.ok) throw new Error('Network error');
+            return response.arrayBuffer();
+        })
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[7]]; // Check sheet index
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
+            // Clear all input fields initially
+            Object.values(columnMap2).forEach(inputId => {
+                const inputField = document.getElementById(inputId);
+                if (inputField) inputField.value = '';
+            });
+
+            const matches = dataRows.filter(row => 
+                String(row[2] || '').toLowerCase().includes(searchTerm)
+            );
+
+            if (matches.length === 0) {
+                document.getElementById('no-results').style.display = 'block';
+                return;
+            }
+
+            // Populate inputs with the first match
+            const firstMatch = matches[0];
+            Object.entries(columnMap2).forEach(([colIndex, inputId]) => {
+                const inputField = document.getElementById(inputId);
+                if (inputField) inputField.value = firstMatch[colIndex] || '';
+            });
+
+            // Display all matches
+            matches.forEach(row => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <h3>Student Found: ${row[3] || 'N/A'}</h3>
+                    ${headers.map((header, i) => `
+                        <p><strong>${header}:</strong> ${row[i] || 'N/A'}</p>
+                    `).join('')}
+                `;
+                resultsDiv.appendChild(card);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to fetch data. Please try again.');
+        });
+        }
+    
     </script>
 
     <script>

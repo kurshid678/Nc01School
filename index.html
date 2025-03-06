@@ -616,7 +616,7 @@ font-weight: bold;
         <button   class="search-btn" id="search-btn3">Register8</button>
         <button   class="search-btn" id="search-btn4">Register7</button>
         <button   class="search-btn" id="search-btn5">Register6</button>
-        
+        <button   class="search-btn" id="search-btn6">Register5/2</button>
           
     </div>
 
@@ -1054,6 +1054,84 @@ function searchSheet3() {
             } 
 
         </script>
+
+
+    <script>
+// Fourth search button and mapping
+document.getElementById('search-btn6').addEventListener('click', searchSheet4);
+
+const columnMap4 = {
+    0: "AdmissionnoInput",
+    1: "StudentnameInput",
+    2: "SatsInput",
+    3: "GenderInput",
+    4: "BirthdateInput",
+    5: "Datebinword",
+    6: "PlaceInput",
+    7: "NamefatherInput",
+    8: "NamemotherInput",
+    10: "CasteInput",
+    11: "hInput",
+};
+
+function searchSheet4() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
+    const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+
+    fetch(xlsxUrl)
+        .then(response => response.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[5]]; // Index 5 for 6th sheet
+            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+            const headers = jsonSheet[0];
+            const dataRows = jsonSheet.slice(1);
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
+            let found = false;
+
+            dataRows.forEach(row => {
+                if (
+                    String(row[0] || '').toLowerCase().includes(searchTerm) || 
+                    String(row[1] || '').toLowerCase().includes(searchTerm)
+                ) {
+                    Object.entries(columnMap4).forEach(([colIndex, inputId]) => {
+                        const inputField = document.getElementById(inputId);
+                        if (inputField) inputField.value = row[colIndex] || '';
+                    });
+
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <h3>Student Found: ${row[1] || 'N/A'}</h3>
+                        ${headers.map((header, i) => `
+                            <p><strong>${header}:</strong> ${row[i] || 'N/A'}</p>
+                        `).join('')}
+                    `;
+                    resultsDiv.appendChild(card);
+                    found = true;
+                }
+            });
+
+            if (!found) document.getElementById('no-results').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching or processing data:', error);
+        });
+        }
+
+
+        function togglePanel() {
+    const panel = document.getElementById('slidingPanel');
+    panel.classList.toggle('open');
+            } 
+
+        
+    </script>
 
     <script>
         const state = {

@@ -850,7 +850,14 @@ function searchSheet1() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+Object.values(columnMap1).forEach(inputId => {
+       const inputField = document.getElementById(inputId);
+       if (inputField) inputField.value = '---';
+   });
+   document.getElementById('results').innerHTML = '';
+   document.getElementById('no-results').style.display = 'none';
 
+        
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
@@ -926,7 +933,12 @@ function searchSheet2() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
-
+  Object.values(columnMap2).forEach(inputId => {
+       const inputField = document.getElementById(inputId);
+       if (inputField) inputField.value = '---';
+   });
+   document.getElementById('results').innerHTML = '';
+   document.getElementById('no-results').style.display = 'none';
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
@@ -998,7 +1010,12 @@ function searchSheet3() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
-
+   Object.values(columnMap3).forEach(inputId => {
+       const inputField = document.getElementById(inputId);
+       if (inputField) inputField.value = '---';
+   });
+   document.getElementById('results').innerHTML = '';
+   document.getElementById('no-results').style.display = 'none';
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
@@ -1071,7 +1088,14 @@ function searchSheet4() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+   Object.values(columnMap4).forEach(inputId => {
+       const inputField = document.getElementById(inputId);
+       if (inputField) inputField.value = '---';
+   });
+   document.getElementById('results').innerHTML = '';
+   document.getElementById('no-results').style.display = 'none';
 
+        
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
@@ -1146,7 +1170,14 @@ function searchSheet5() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
+    Object.values(columnMap5).forEach(inputId => {
+       const inputField = document.getElementById(inputId);
+       if (inputField) inputField.value = '---';
+   });
+   document.getElementById('results').innerHTML = '';
+   document.getElementById('no-results').style.display = 'none';
 
+    
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
@@ -1217,6 +1248,13 @@ function searchSheet6() {
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
 
+Object.values(columnMap6).forEach(inputId => {
+       const inputField = document.getElementById(inputId);
+       if (inputField) inputField.value = '---';
+   });
+   document.getElementById('results').innerHTML = '';
+   document.getElementById('no-results').style.display = 'none';
+        
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
@@ -1287,7 +1325,13 @@ function searchSheet7() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
-
+Object.values(columnMap7).forEach(inputId => {
+       const inputField = document.getElementById(inputId);
+       if (inputField) inputField.value = '---';
+   });
+   document.getElementById('results').innerHTML = '';
+   document.getElementById('no-results').style.display = 'none';
+    
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {

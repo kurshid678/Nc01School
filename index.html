@@ -1019,7 +1019,7 @@ function searchSheet3() {
                 if (String(row[0] || '').toLowerCase().includes(searchTerm)||
                    String(row[1] || '').toLowerCase().includes(searchTerm)) {
                     // Populate inputs
-                    Object.entries(columnMap2).forEach(([colIndex, inputId]) => {
+                    Object.entries(columnMap3).forEach(([colIndex, inputId]) => {
                         const inputField = document.getElementById(inputId);
                         if (inputField) inputField.value = row[colIndex] || '';
                     });

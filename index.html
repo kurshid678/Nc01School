@@ -982,14 +982,13 @@ function togglePanel() {
         <script>
 // Third search button and mapping
 document.getElementById('search-btn5').addEventListener('click', searchSheet3);
-
-const columnMap3 = {
+const columnMap3 = { // Keep the same mapping unless you want different fields
     0: "AdmissionnoInput",
+    1: "PlaceInput",
     2: "StudentnameInput",
     3: "GenderInput",
     4: "BirthdateInput",
     5: "Datebinword",
-    1: "PlaceInput",
     6: "NamefatherInput",
     7: "NamemotherInput",
     9: "CasteInput",
@@ -1005,7 +1004,7 @@ function searchSheet3() {
         .then(response => response.arrayBuffer())
         .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
-            const worksheet = workbook.Sheets[workbook.SheetNames[6]]; // Index 6 for 7th sheet
+            const worksheet = workbook.Sheets[workbook.SheetNames[7]]; // Changed to index 7
             const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
             const headers = jsonSheet[0];
@@ -1017,16 +1016,15 @@ function searchSheet3() {
             let found = false;
 
             dataRows.forEach(row => {
-                // Modified condition to check both first and second columns
-                if (
-                    String(row[0] || '').toLowerCase().includes(searchTerm) || 
-                    String(row[1] || '').toLowerCase().includes(searchTerm)
-                ) {
-                    Object.entries(columnMap3).forEach(([colIndex, inputId]) => {
+                if (String(row[0] || '').toLowerCase().includes(searchTerm)||
+                   String(row[1] || '').toLowerCase().includes(searchTerm)) {
+                    // Populate inputs
+                    Object.entries(columnMap2).forEach(([colIndex, inputId]) => {
                         const inputField = document.getElementById(inputId);
                         if (inputField) inputField.value = row[colIndex] || '';
                     });
 
+                    // Display results
                     const card = document.createElement('div');
                     card.className = 'result-card';
                     card.innerHTML = `
@@ -1045,9 +1043,7 @@ function searchSheet3() {
         .catch(error => {
             console.error('Error fetching or processing data:', error);
         });
-            }
-
-
+}
            function togglePanel() {
     const panel = document.getElementById('slidingPanel');
     panel.classList.toggle('open');

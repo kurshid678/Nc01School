@@ -1004,7 +1004,7 @@ function searchSheet3() {
         .then(response => response.arrayBuffer())
         .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
-            const worksheet = workbook.Sheets[workbook.SheetNames[7]]; // Changed to index 7
+            const worksheet = workbook.Sheets[workbook.SheetNames[6]]; // Changed to index 7
             const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
             const headers = jsonSheet[0];

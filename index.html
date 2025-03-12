@@ -1276,7 +1276,7 @@ function searchSheet6() {
                     String(row[0] || '').toLowerCase().includes(searchTerm) || 
                     String(row[1] || '').toLowerCase().includes(searchTerm)
                 ) {
-                    Object.entries(columnMap5).forEach(([colIndex, inputId]) => {
+                    Object.entries(columnMap6).forEach(([colIndex, inputId]) => {
                         const inputField = document.getElementById(inputId);
                         if (inputField) inputField.value = row[colIndex] || '..';
                     });
@@ -1357,7 +1357,7 @@ Object.values(columnMap6).forEach(inputId => {
                     String(row[0] || '').toLowerCase().includes(searchTerm) || 
                     String(row[1] || '').toLowerCase().includes(searchTerm)
                 ) {
-                    Object.entries(columnMap5).forEach(([colIndex, inputId]) => {
+                    Object.entries(columnMap7).forEach(([colIndex, inputId]) => {
                         const inputField = document.getElementById(inputId);
                         if (inputField) inputField.value = row[colIndex] || '..';
                     });

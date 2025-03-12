@@ -1310,6 +1310,7 @@ Object.values(columnMap6).forEach(inputId => {
 
     </script>
     <script>
+
 document.getElementById('search-btn9').addEventListener('click', searchSheet7);
 
 const columnMap7 = {
@@ -1319,67 +1320,54 @@ const columnMap7 = {
     3: "PlaceInput",
     4: "BirthdateInput",
     5: "Datebinword,
+    
+    
+    
 };
 
-
-
 function searchSheet7() {
-    const searchTerm = document.getElementById('search-bar').value.trim().toLowerCase();
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
 
-    // Clear all input fields and results before new search
-    Object.values(columnMap2).forEach(inputId => {
-        const inputField = document.getElementById(inputId);
-        if (inputField) inputField.value = '---';
-    });
-    document.getElementById('results').innerHTML = '';
-    document.getElementById('no-results').style.display = 'none';
-
+Object.values(columnMap6).forEach(inputId => {
+       const inputField = document.getElementById(inputId);
+       if (inputField) inputField.value = '---';
+   });
+   document.getElementById('results').innerHTML = '';
+   document.getElementById('no-results').style.display = 'none';
+        
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
             const workbook = XLSX.read(data, { type: 'array' });
-            const worksheet = workbook.Sheets[workbook.SheetNames[2]];
+            const worksheet = workbook.Sheets[workbook.SheetNames[2]]; // Index 4 for 5th sheet
             const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
 
             const headers = jsonSheet[0];
             const dataRows = jsonSheet.slice(1);
             const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            document.getElementById('no-results').style.display = 'none';
+
             let found = false;
 
-            // Numeric search check
-            const searchAsNumber = Number(searchTerm);
-            const isNumericSearch = !isNaN(searchAsNumber) && isFinite(searchAsNumber);
-
             dataRows.forEach(row => {
-                const rowAdmission = row[0];
-                const rowAdmissionNumber = Number(rowAdmission);
-                const rowAdmissionStr = String(rowAdmission || '').toLowerCase();
-                const rowStudentName = String(row[1] || '').toLowerCase();
-
-                // Admission Number check
-                const admissionCheck = isNumericSearch 
-                    ? rowAdmissionNumber === searchAsNumber 
-                    : rowAdmissionStr.includes(searchTerm);
-
-                // Student Name check
-                const studentNameCheck = rowStudentName.includes(searchTerm);
-
-                if (admissionCheck || studentNameCheck) {
-                    // Populate inputs
-                    Object.entries(columnMap2).forEach(([colIndex, inputId]) => {
+                if (
+                    String(row[0] || '').toLowerCase().includes(searchTerm) || 
+                    String(row[1] || '').toLowerCase().includes(searchTerm)
+                ) {
+                    Object.entries(columnMap5).forEach(([colIndex, inputId]) => {
                         const inputField = document.getElementById(inputId);
-                        if (inputField) inputField.value = row[colIndex] || '---';
+                        if (inputField) inputField.value = row[colIndex] || '..';
                     });
 
-                    // Display results
                     const card = document.createElement('div');
                     card.className = 'result-card';
                     card.innerHTML = `
-                        <h3>Student Found: ${row[1] || '---'}</h3>
+                        <h3>Student Found: ${row[1] || 'N/A'}</h3>
                         ${headers.map((header, i) => `
-                            <p><strong>${header}:</strong> ${row[i] || '---'}</p>
+                            <p><strong>${header}:</strong> ${row[i] || 'N/A'}</p>
                         `).join('')}
                     `;
                     resultsDiv.appendChild(card);
@@ -1392,13 +1380,15 @@ function searchSheet7() {
         .catch(error => {
             console.error('Error fetching or processing data:', error);
         });
-}
-
-function togglePanel() {
-    const panel = document.getElementById('slidingPanel');
-    panel.classList.toggle('open');
         }
 
+        function togglePanel() {
+    const panel = document.getElementById('slidingPanel');
+    panel.classList.toggle('open');
+            } 
+
+
+        
         
 
     </script>

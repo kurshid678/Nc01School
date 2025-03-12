@@ -1317,24 +1317,23 @@ const columnMap7 = {
     2: "CasteInput",
     3: "PlaceInput",
     4: "BirthdateInput",
-    5: "Datebinword,
+    5: "Datebinword",
     
-    
-    
+
 };
 
 function searchSheet7() {
     const searchTerm = document.getElementById('search-bar').value.toLowerCase();
     const sheetID = '1wtPvAG_LJ0X2LzXpvmdIPqN64sY3hIO2imzrxny3ezM';
     const xlsxUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/export?format=xlsx`;
-
-Object.values(columnMap6).forEach(inputId => {
+    Object.values(columnMap5).forEach(inputId => {
        const inputField = document.getElementById(inputId);
        if (inputField) inputField.value = '---';
    });
    document.getElementById('results').innerHTML = '';
    document.getElementById('no-results').style.display = 'none';
-        
+
+    
     fetch(xlsxUrl)
         .then(response => response.arrayBuffer())
         .then(data => {
@@ -1383,7 +1382,7 @@ Object.values(columnMap6).forEach(inputId => {
         function togglePanel() {
     const panel = document.getElementById('slidingPanel');
     panel.classList.toggle('open');
-            } 
+            }
 
 
         

@@ -1808,8 +1808,8 @@ async function confirmSave() {
     const pdf = new jspdf.jsPDF({
       unit: 'mm',
       format: state.currentSize === 'a4' ? 'a4' : 
-            state.currentSize === 'legal' ? [216, 356] : 
-            [220, 360],
+            state.currentSize === 'legal' ? [210, 297] : 
+            [210, 297],
       compress: true,
       hotfixes: ["px_scaling"]
     });
